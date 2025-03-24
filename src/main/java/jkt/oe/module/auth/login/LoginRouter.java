@@ -14,13 +14,9 @@ public class LoginRouter {
 	@Bean
 	protected RouterFunction<ServerResponse> sessionRouter(LoginHandler loginHandler){
 		
-		return RouterFunctions			
+		return RouterFunctions
 			//로그인 프로세스
 			.route(RequestPredicates.POST("/login/process")
-				.and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), loginHandler::loginProcess);
-			//세션정보 조회
-//			.andRoute(RequestPredicates.POST("/api/member/getSession")
-//				.and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), loginHandler::getSession)
-			
+				.and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), loginHandler::loginProcess);			
 	}
 }

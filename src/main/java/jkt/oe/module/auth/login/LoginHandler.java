@@ -1,5 +1,10 @@
 package jkt.oe.module.auth.login;
 
+import java.util.Map;
+
+import javax.security.auth.login.LoginException;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -8,6 +13,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 
+import jkt.oe.module.auth.login.model.request.LoginRequest;
 import jkt.oe.module.auth.login.service.LoginService;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -19,6 +25,18 @@ public class LoginHandler implements WebExceptionHandler {
 	private final LoginService loginService;
 	
 	public Mono<ServerResponse> loginProcess(ServerRequest request){
+		
+		return request.bodyToMono(LoginRequest.class)
+			.flatMap(loginService::findUser)
+			//.flatMap(loginService::confirmUser)
+			.flatMap(result -> ServerResponse.ok()
+		            .contentType(MediaType.APPLICATION_JSON)
+		            .body(BodyInserters.fromValue(result)))
+			.onErrorResume(LoginException.class, ex -> {				
+				return ServerResponse.status(HttpStatus.UNAUTHORIZED)
+		                .contentType(MediaType.APPLICATION_JSON)
+		                .body(BodyInserters.fromValue(Map.of()));
+			});
 		
 //		return request.bodyToMono(LoginModel.class)
 //			//회원조회
@@ -39,10 +57,6 @@ public class LoginHandler implements WebExceptionHandler {
 //						.contentType(MediaType.APPLICATION_JSON)
 //						.body(BodyInserters.fromValue(result));
 //			});
-		
-		return ServerResponse.ok()						
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue("{\"test\":\"test\"}"));
 	}
 
 	@Override
