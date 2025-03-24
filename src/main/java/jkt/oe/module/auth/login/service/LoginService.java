@@ -1,9 +1,7 @@
 package jkt.oe.module.auth.login.service;
-
-import javax.security.auth.login.LoginException;
-
 import org.springframework.stereotype.Service;
 
+import jkt.oe.module.auth.login.exception.LoginException;
 import jkt.oe.module.auth.login.model.request.LoginRequest;
 import jkt.oe.module.auth.login.model.response.LoginResponse;
 import jkt.oe.module.auth.login.repository.LoginRepository;
@@ -19,7 +17,7 @@ public class LoginService {
 	public Mono<LoginResponse> findUser(LoginRequest model){
 		
 		return loginRepository.findByUserId(model.getUserId())
-                .switchIfEmpty(Mono.error(new LoginException("User not found")));
+                .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
 	}
 	
 	public void confirmUser() {

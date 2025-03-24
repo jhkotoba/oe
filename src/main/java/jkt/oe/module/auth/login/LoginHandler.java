@@ -2,8 +2,6 @@ package jkt.oe.module.auth.login;
 
 import java.util.Map;
 
-import javax.security.auth.login.LoginException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -13,6 +11,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 
+import jkt.oe.module.auth.login.exception.LoginException;
 import jkt.oe.module.auth.login.model.request.LoginRequest;
 import jkt.oe.module.auth.login.service.LoginService;
 import lombok.AllArgsConstructor;
@@ -32,10 +31,14 @@ public class LoginHandler implements WebExceptionHandler {
 			.flatMap(result -> ServerResponse.ok()
 		            .contentType(MediaType.APPLICATION_JSON)
 		            .body(BodyInserters.fromValue(result)))
+			
 			.onErrorResume(LoginException.class, ex -> {				
 				return ServerResponse.status(HttpStatus.UNAUTHORIZED)
-		                .contentType(MediaType.APPLICATION_JSON)
-		                .body(BodyInserters.fromValue(Map.of()));
+					.contentType(MediaType.APPLICATION_JSON)
+					.body(BodyInserters.fromValue(Map.of(
+		                	"message", ex.getReason().getMessage(),
+		                	"code", ex.getReason().getCode()
+		                )));
 			});
 		
 //		return request.bodyToMono(LoginModel.class)
