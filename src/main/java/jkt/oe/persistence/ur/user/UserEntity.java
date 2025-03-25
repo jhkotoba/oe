@@ -8,6 +8,9 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.Getter;
 
+/**
+ * UR_USER과 매칭되는 엔티티 클래스
+ */
 @Getter
 @Table("UR_USER")
 public class UserEntity {

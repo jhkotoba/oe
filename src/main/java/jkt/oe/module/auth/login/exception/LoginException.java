@@ -1,5 +1,8 @@
 package jkt.oe.module.auth.login.exception;
 
+/**
+ * 로그인 관련 예외처리 Exception
+ */
 public class LoginException extends RuntimeException {
 	
 	private static final long serialVersionUID = 1L;

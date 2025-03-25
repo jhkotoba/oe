@@ -17,12 +17,23 @@ import jkt.oe.module.auth.login.service.LoginService;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
 
+/**
+ * 로그인 요청을 처리하는 핸들러 객체
+ */
 @Component
 @AllArgsConstructor
 public class LoginHandler implements WebExceptionHandler {
 	
+	/**
+	 * 로그인 관련 비즈니스 로직을 수행하는 서비스
+	 */
 	private final LoginService loginService;
 	
+	/**
+	 * 로그인 프로세스를 처리하는 핸들러 메소드
+	 * @param request - 클라이언트로부터의 로그인 요청을 나타내는 ServerRequest
+	 * @return Mono<ServerResponse> - 클라이언트에 전송할 비동기 HTTP 응답
+	 */
 	public Mono<ServerResponse> loginProcess(ServerRequest request){
 		
 		return request.bodyToMono(LoginRequest.class)
