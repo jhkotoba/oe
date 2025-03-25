@@ -2,8 +2,8 @@ package jkt.oe.module.auth.login.service;
 import org.springframework.stereotype.Service;
 
 import jkt.oe.module.auth.login.exception.LoginException;
+import jkt.oe.module.auth.login.model.data.UserData;
 import jkt.oe.module.auth.login.model.request.LoginRequest;
-import jkt.oe.module.auth.login.model.response.LoginResponse;
 import jkt.oe.module.auth.login.repository.LoginRepository;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -25,14 +25,15 @@ public class LoginService {
 	 * @param LoginRequest - 클라이언트가 요청 데이터
 	 * @return Mono<LoginResponse> - 비동기적으로 반환되는 사용자 정보
 	 */
-	public Mono<LoginResponse> findUser(LoginRequest request){
+	public Mono<UserData> findUser(LoginRequest request){
 		
 		return loginRepository.findByUserId(request.getUserId())
                 .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
 	}
 	
-	public void confirmUser() {
+	public Mono<UserData> confirmUser(LoginRequest request, UserData user) {
 		
+		return Mono.just(user);
 	}
 
 }
