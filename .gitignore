@@ -1,5 +1,7 @@
 /target/
 
+*.pem
+
 .mvn/wrapper
 *.yml
 
