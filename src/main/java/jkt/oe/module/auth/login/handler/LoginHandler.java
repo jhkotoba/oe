@@ -58,12 +58,11 @@ public class LoginHandler implements WebExceptionHandler {
 		        	// 사용자 검증
 		            .flatMap(user -> loginService.confirmUser(request, user))      
 		    ).flatMap(user -> Mono.zip(
-		    		//
-					mapper.convertLoginProcessResponse(user),
-					//
+		    		
+					// 접근 토큰 생성
 					tokenService.generateAccessToken(TokenCreateData.of(user.getUserNo(), user.getUserId())),
 					//
-					tokenService.generateRefreshToken(TokenCreateData.of(user.getUserNo(), user.getUserId()))
+					mapper.convertLoginProcessResponse(user)
 				)
 			)
 //			.map(tuple -> {
@@ -79,15 +78,14 @@ public class LoginHandler implements WebExceptionHandler {
 			// HTTP 응답처리
 			.flatMap(tuple -> ServerResponse.ok()
 		            .contentType(MediaType.APPLICATION_JSON)
-		            .cookie(tuple.getT2())
-		            .cookie(tuple.getT3())
-		            .bodyValue(tuple.getT1())
+		            .cookie(tuple.getT1())
+		            .bodyValue(tuple.getT2())
 			)
 //			.flatMap(response -> ServerResponse.ok()
 //					.contentType(MediaType.APPLICATION_JSON)
 //					.bodyValue(response)
 //					)
-			// 로그인 예외처리
+			// 오류 예외처리
 			.onErrorResume(LoginException.class, ex -> {				
 				return ServerResponse.status(HttpStatus.UNAUTHORIZED)
 					.contentType(MediaType.APPLICATION_JSON)
