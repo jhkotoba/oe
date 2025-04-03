@@ -5,14 +5,14 @@ import jkt.oe.module.auth.login.exception.LoginException;
 import jkt.oe.module.auth.login.model.data.UserData;
 import jkt.oe.module.auth.login.model.request.LoginRequest;
 import jkt.oe.module.auth.login.repository.LoginRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 /**
  * 로그인 관련 비즈니스 로직을 수행하는 서비스
  */
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class LoginService {
 	
 	/**

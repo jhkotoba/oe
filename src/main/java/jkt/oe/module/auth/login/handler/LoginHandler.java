@@ -1,23 +1,23 @@
 package jkt.oe.module.auth.login.handler;
 
-import java.time.Duration;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 
+import jkt.oe.config.constant.ResponseConst;
+import jkt.oe.infrastructure.redis.data.StoreRefreshTokenData;
+import jkt.oe.infrastructure.redis.service.RedisService;
 import jkt.oe.module.auth.login.exception.LoginException;
 import jkt.oe.module.auth.login.model.request.LoginRequest;
-import jkt.oe.module.auth.login.model.response.LoginResponse;
 import jkt.oe.module.auth.login.service.LoginService;
-import jkt.oe.module.auth.token.model.data.TokenCreateData;
+import jkt.oe.module.auth.token.model.data.AccessTokenCreateData;
+import jkt.oe.module.auth.token.model.data.RefreshTokenCreateData;
 import jkt.oe.module.auth.token.service.TokenService;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -39,6 +39,8 @@ public class LoginHandler implements WebExceptionHandler {
 	 */
 	private final TokenService tokenService;
 	
+	private final RedisService redisService;
+	
 	/**
 	 * 로그인 관련 응답 객체 변환 Mapper
 	 */
@@ -51,47 +53,58 @@ public class LoginHandler implements WebExceptionHandler {
 	 */
 	public Mono<ServerResponse> loginProcess(ServerRequest serverRequest){
 		
+		// 클라이언트의 IP와 User-Agent 정보 추출
+        String ip = serverRequest.remoteAddress()
+            .map(addr -> addr.getAddress().getHostAddress())
+            .orElse("unknown");
+        String userAgent = serverRequest.headers().firstHeader("User-Agent");
+		
 		return serverRequest.bodyToMono(LoginRequest.class)
 			.flatMap(request -> 
 		        // 사용자 정보를 조회
 		        loginService.findUser(request)
 		        	// 사용자 검증
-		            .flatMap(user -> loginService.confirmUser(request, user))      
+		            .flatMap(user -> loginService.confirmUser(request, user))
 		    ).flatMap(user -> Mono.zip(
-		    		
-					// 접근 토큰 생성
-					tokenService.generateAccessToken(TokenCreateData.of(user.getUserNo(), user.getUserId())),
-					//
-					mapper.convertLoginProcessResponse(user)
+					// Access 토큰 생성 - tuple1
+					tokenService.generateAccessToken(AccessTokenCreateData.of(user.getUserNo(), user.getUserId())),
+					// Response 객체 생성 - tuple2
+					mapper.convertLoginProcessResponse(user),
+					// Refresh 토큰 생성 - tuple3
+					tokenService.generateRefreshToken(RefreshTokenCreateData.of(user.getUserNo(), ip, userAgent)),
+					// 사용자 정보 - tuple4
+					Mono.just(user)
 				)
+			)			
+			// RefreshToken redis 저장
+			.flatMap(tuple -> redisService.storeRefreshToken(StoreRefreshTokenData.builder()
+		        		.userNo(tuple.getT4().getUserNo())
+		        		.refreshToken(tuple.getT3())
+		        		.ip(ip)
+		        		.userAgent(userAgent)
+		        		.build()
+				)
+				// 응답 데이터 전달
+				.then(Mono.zip(
+					// ResponseCookie 객체로 생성
+					tokenService.generateAccessTokenCookie(tuple.getT1()),
+					// 응답값 전송
+					Mono.just(tuple.getT2())
+				))
 			)
-//			.map(tuple -> {
-//				//return ServerResponse.ok();
-////				.cookie(jwtCookie)
-//				return tuple.getT1();
-//				
-//			})
-			//.map(tuple -> mapper.convertLoginProcessResponse(tuple.getT1(), tuple.getT2()))
-
-			// 응답객체로 변환
-			//.flatMap(mapper::convertLoginProcess)
 			// HTTP 응답처리
 			.flatMap(tuple -> ServerResponse.ok()
 		            .contentType(MediaType.APPLICATION_JSON)
 		            .cookie(tuple.getT1())
 		            .bodyValue(tuple.getT2())
 			)
-//			.flatMap(response -> ServerResponse.ok()
-//					.contentType(MediaType.APPLICATION_JSON)
-//					.bodyValue(response)
-//					)
 			// 오류 예외처리
 			.onErrorResume(LoginException.class, ex -> {				
 				return ServerResponse.status(HttpStatus.UNAUTHORIZED)
 					.contentType(MediaType.APPLICATION_JSON)
 					.bodyValue(Map.of(
-		                	"message", ex.getReason().getMessage(),
-		                	"code", ex.getReason().getCode()
+							ResponseConst.MESSAGE, ex.getReason().getMessage(),
+							ResponseConst.CODE, ex.getReason().getCode()
 		                ));
 			});
 	}
