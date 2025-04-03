@@ -10,14 +10,15 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 
+import jkt.oe.config.constant.HeaderConst;
 import jkt.oe.config.constant.ResponseConst;
+import jkt.oe.config.util.RequestUtil;
 import jkt.oe.infrastructure.redis.data.StoreRefreshTokenData;
 import jkt.oe.infrastructure.redis.service.RedisService;
 import jkt.oe.module.auth.login.exception.LoginException;
 import jkt.oe.module.auth.login.model.request.LoginRequest;
 import jkt.oe.module.auth.login.service.LoginService;
 import jkt.oe.module.auth.token.model.data.AccessTokenCreateData;
-import jkt.oe.module.auth.token.model.data.RefreshTokenCreateData;
 import jkt.oe.module.auth.token.service.TokenService;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -39,6 +40,9 @@ public class LoginHandler implements WebExceptionHandler {
 	 */
 	private final TokenService tokenService;
 	
+	/**
+	 * Redis 관련 서비스
+	 */
 	private final RedisService redisService;
 	
 	/**
@@ -53,11 +57,11 @@ public class LoginHandler implements WebExceptionHandler {
 	 */
 	public Mono<ServerResponse> loginProcess(ServerRequest serverRequest){
 		
-		// 클라이언트의 IP와 User-Agent 정보 추출
-        String ip = serverRequest.remoteAddress()
-            .map(addr -> addr.getAddress().getHostAddress())
-            .orElse("unknown");
-        String userAgent = serverRequest.headers().firstHeader("User-Agent");
+		// IP 주소 추출
+		String ip = RequestUtil.getClientIp(serverRequest);
+		
+		// User-Agent 헤더 추출
+	    String userAgent = serverRequest.headers().firstHeader(HeaderConst.USER_AGENT);
 		
 		return serverRequest.bodyToMono(LoginRequest.class)
 			.flatMap(request -> 
@@ -71,7 +75,7 @@ public class LoginHandler implements WebExceptionHandler {
 					// Response 객체 생성 - tuple2
 					mapper.convertLoginProcessResponse(user),
 					// Refresh 토큰 생성 - tuple3
-					tokenService.generateRefreshToken(RefreshTokenCreateData.of(user.getUserNo(), ip, userAgent)),
+					tokenService.generateRefreshToken(user.getUserNo()),
 					// 사용자 정보 - tuple4
 					Mono.just(user)
 				)

@@ -34,19 +34,19 @@ public class TokenService {
 	 * RefreshToken의 유효 시간(초)
 	 */
 	@Value("${custom.jwt.refresh-expiration}")
-	private Long refreshExpiration;
-	
-	
+	private Long refreshExpiration;	
 	
 	/**
 	 * RSA 키 제공자 컴퍼넌트
 	 */
 	private final RsaKeyProvider rsaKeyProvider;
 	
-	
-	
-	
-	public Mono<String> generateRefreshToken(RefreshTokenCreateData data){
+	/**
+	 * 
+	 * @param userNo
+	 * @return
+	 */
+	public Mono<String> generateRefreshToken(Long userNo){
 		
 		// 현재 시간
         Instant now = Instant.now();
@@ -58,7 +58,7 @@ public class TokenService {
         	
         	// JWT 토큰 생성 (user 정보와 만료시간 포함)
         	return Jwts.builder()
-                .claim("userNo", data.getUserNo())
+                .claim("userNo", userNo)
                 .expiration(expiration)	// 만료 시간
                 .issuedAt(Date.from(now)) // 발급 시간
                 .signWith(rsaKeyProvider.getPrivateKey(), Jwts.SIG.PS256) // RSA 개인키로 서명 (PS256)

@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
@@ -13,6 +14,12 @@ import lombok.RequiredArgsConstructor;
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+	
+	
+	@Bean
+	protected HeaderValidationFilter headerValidationFilter() {
+        return new HeaderValidationFilter();
+    }
 	
 	@Bean
     protected SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, 
@@ -37,6 +44,9 @@ public class SecurityConfig {
                 .pathMatchers("/signup/**").permitAll() // 회원가입
                 .anyExchange().authenticated() // 나머지는 인증 필요
             )
+
+            .addFilterAt(headerValidationFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+            
             .authenticationManager(jwtAuthenticationManager)
             
             // 세션/Context 저장소 설정
