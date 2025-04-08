@@ -1,7 +1,8 @@
 package jkt.oe.config.security;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -32,7 +33,10 @@ public class RsaKeyProvider {
     public RsaKeyProvider(@Value("${custom.jwt.private-key-path}") Resource privateKeyPath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
     	
     	// 파일 내용을 문자열로 읽기
-        String key = Files.readString(privateKeyPath.getFile().toPath());
+        String key;
+        try (InputStream is = privateKeyPath.getInputStream()) {
+            key = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
         
         // PEM 헤더/푸터 제거 + 공백 제거 → Base64 디코딩 준비
         key = key.replace("-----BEGIN PRIVATE KEY-----", "")
