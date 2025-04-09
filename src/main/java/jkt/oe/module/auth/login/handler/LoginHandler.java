@@ -20,14 +20,14 @@ import jkt.oe.module.auth.login.model.request.LoginRequest;
 import jkt.oe.module.auth.login.service.LoginService;
 import jkt.oe.module.auth.token.model.data.AccessTokenCreateData;
 import jkt.oe.module.auth.token.service.TokenService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 /**
  * 로그인 요청을 처리하는 핸들러 객체
  */
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class LoginHandler implements WebExceptionHandler {
 	
 	/**
