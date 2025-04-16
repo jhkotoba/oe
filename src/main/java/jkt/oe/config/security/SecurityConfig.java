@@ -33,13 +33,14 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             
             // 리액티브 방식의 HTTP Basic 인증 활성화 (선택)
-            .httpBasic(Customizer.withDefaults())
+            .httpBasic(httpBasic -> httpBasic.disable())            
             
             // 폼 로그인 활성화
-            .formLogin(Customizer.withDefaults())
+            .formLogin(form -> form.loginPage("/login"))
             
             // 라우트별 접근 권한 설정
             .authorizeExchange(exchanges -> exchanges
+                .pathMatchers("/static/**").permitAll()
                 .pathMatchers("/login/**").permitAll()  // 로그인
                 .pathMatchers("/signup/**").permitAll() // 회원가입
                 .anyExchange().authenticated() // 나머지는 인증 필요
