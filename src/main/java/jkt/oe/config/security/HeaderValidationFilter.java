@@ -1,5 +1,6 @@
 package jkt.oe.config.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -21,7 +22,7 @@ public class HeaderValidationFilter implements WebFilter {
 	 */
 	@Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        ServerHttpRequest request = exchange.getRequest();        
+        ServerHttpRequest request = exchange.getRequest();
 
         // 클라이언트 IP 주소 추출
         String ip = RequestUtil.getClientIp(request);
@@ -36,13 +37,17 @@ public class HeaderValidationFilter implements WebFilter {
             return exchange.getResponse().setComplete();
         }
         
-        // IP 화이트리스트 체크
-        // 추후 구현 - DB, 레디스 사용예정
-        
         // User-Agent가 없는 경우 요청 차단
         if (userAgent == null || userAgent.isEmpty()) {
             exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
             exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            return exchange.getResponse().setComplete();
+        }
+        
+        // 로컬 IP만 접근 체크
+        if(!"127.0.0.1".equals(ip) && !"localhost".equals(ip)) {
+        	exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+        	exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
             return exchange.getResponse().setComplete();
         }
         
