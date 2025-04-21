@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
  */
 @Component
 @RequiredArgsConstructor
-public class LoginHandler implements WebExceptionHandler {
+public class LoginHandler {
 	
 	/**
 	 * 로그인 관련 비즈니스 로직을 수행하는 서비스
@@ -112,45 +112,4 @@ public class LoginHandler implements WebExceptionHandler {
 		                ));
 			});
 	}
-
-	@Override
-	public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
-		// TODO Auto-generated method stub
-		return null;
-		
-//		// 1) 예외 로그 출력
-//        log.error("Global Exception Caught: ", ex);
-//
-//        // 2) 상태 코드 결정 (필요 시 예외 타입별로 분기)
-//        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-//        if (ex instanceof ResponseStatusException) {
-//            status = ((ResponseStatusException) ex).getStatusCode();
-//        } 
-//        // 커스텀 예외 분기 예시
-//        // else if (ex instanceof MyCustomBadRequestException) {
-//        //     status = HttpStatus.BAD_REQUEST;
-//        // }
-//
-//        // 3) 응답 바디 구성
-//        Map<String, Object> errorBody = new HashMap<>();
-//        errorBody.put("success", false);
-//        errorBody.put("status", status.value());
-//        errorBody.put("error", ex.getClass().getSimpleName());
-//        errorBody.put("message", ex.getMessage());
-//
-//        // 4) 응답 헤더/바디 설정
-//        exchange.getResponse().setStatusCode(status);
-//        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-//
-//        // 5) JSON 변환 후 Body에 기록
-//        return Mono.fromCallable(() -> objectMapper.writeValueAsBytes(errorBody))
-//                .flatMap(bytes -> {
-//                    DataBuffer buffer = exchange.getResponse()
-//                        .bufferFactory()
-//                        .wrap(bytes);
-//                    return exchange.getResponse().writeWith(Mono.just(buffer));
-//                });
-//    }
-	}
-
 }

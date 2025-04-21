@@ -1,6 +1,12 @@
 package jkt.oe.module.auth.login.service;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.springframework.stereotype.Service;
 
+import jkt.oe.config.exception.SystemException;
 import jkt.oe.module.auth.login.exception.LoginException;
 import jkt.oe.module.auth.login.model.data.UserData;
 import jkt.oe.module.auth.login.model.request.LoginRequest;
@@ -31,9 +37,35 @@ public class LoginService {
                 .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
 	}
 	
+	/**
+	 * 사용자가 입력한 비밀번호를 현재 저장된 해시와 비교하여 인증을 수행
+	 * 
+	 * @param request - 로그인 요청 정보(사용자 ID, 원문 비밀번호 등)
+	 * @param user - DB에서 조회한 사용자 정보(저장된 해시, 솔트 등)
+	 * @return
+	 */
 	public Mono<UserData> confirmUser(LoginRequest request, UserData user) {
 		
-		return Mono.just(user);
+		return Mono.fromCallable(() -> {
+			
+			// SHA-512 해시 생성
+			MessageDigest md = MessageDigest.getInstance("SHA-512");
+	        md.update(user.getSalt().getBytes(StandardCharsets.UTF_8));
+	        md.update(request.getPassword().getBytes(StandardCharsets.UTF_8));
+	        String encoded = String.format("%0128x", new BigInteger(1, md.digest()));	        
+	        
+	        // 타이밍 공격 방지를 위한 상수 시간 비교
+	        byte[] actual = user.getPassword().getBytes(StandardCharsets.UTF_8);
+	        byte[] expected = encoded.getBytes(StandardCharsets.UTF_8);
+	        if (!MessageDigest.isEqual(actual, expected)) {
+	            throw new LoginException(LoginException.Reason.INVALID_CREDENTIALS);
+	        }	        
+			
+	        return user;
+		
+		}).onErrorMap(NoSuchAlgorithmException.class, ex -> {
+			// SHA-512 알고리즘이 없을 때 예외처리
+			return new SystemException(SystemException.Reason.NO_SUCH_ALGORITHM, ex);
+		});
 	}
-
 }
