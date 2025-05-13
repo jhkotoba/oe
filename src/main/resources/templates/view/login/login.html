@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+<link rel="stylesheet" type="text/css" th:href="@{/{prefix}/static/login/login.css (prefix=${gatewayPrefix})}">
+</head>
+<body>
+	<div class="login-container">
+		<h1>Login</h1>
+		<form id="loginForm" class="login-form" onsubmit="return false;">
+			<input type="text" id="userId" placeholder="아이디">
+			<input type="password" id="password" placeholder="비밀번호">
+			<input type="hidden" id="prefix" th:value="${gatewayPrefix}"> 
+			<button type="button" id="loginButton">submit</button>
+		</form>
+	</div>
+</body>
+<script type="module" th:src="@{/{prefix}/static/login/login.js (prefix=${gatewayPrefix})}"></script>
+</html>
