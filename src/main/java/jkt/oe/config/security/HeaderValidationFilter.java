@@ -44,7 +44,7 @@ public class HeaderValidationFilter implements WebFilter {
         }
         
         // 로컬 IP만 접근 체크
-        if(!"127.0.0.1".equals(ip) && !"localhost".equals(ip)) {
+        if(!"127.0.0.1".equals(ip) && !"localhost".equals(ip) && !"0:0:0:0:0:0:0:1".equals(ip)) {
         	exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
         	exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
             return exchange.getResponse().setComplete();
