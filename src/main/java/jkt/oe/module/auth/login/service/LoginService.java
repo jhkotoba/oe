@@ -13,6 +13,7 @@ import jkt.oe.module.auth.login.model.request.LoginRequest;
 import jkt.oe.module.auth.login.repository.LoginRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * 로그인 관련 비즈니스 로직을 수행하는 서비스
@@ -62,8 +63,9 @@ public class LoginService {
 	        }	        
 			
 	        return user;
-		
-		}).onErrorMap(NoSuchAlgorithmException.class, ex -> {
+		})
+		.subscribeOn(Schedulers.parallel())
+		.onErrorMap(NoSuchAlgorithmException.class, ex -> {
 			// SHA-512 알고리즘이 없을 때 예외처리
 			return new SystemException(SystemException.Reason.NO_SUCH_ALGORITHM, ex);
 		});

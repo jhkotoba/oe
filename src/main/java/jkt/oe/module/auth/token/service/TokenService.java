@@ -13,9 +13,9 @@ import jkt.oe.config.constant.CookieConst;
 import jkt.oe.config.constant.TokenConst;
 import jkt.oe.config.security.RsaKeyProvider;
 import jkt.oe.module.auth.token.model.data.AccessTokenCreateData;
-import jkt.oe.module.auth.token.model.data.RefreshTokenCreateData;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * 
@@ -63,7 +63,7 @@ public class TokenService {
                 .issuedAt(Date.from(now)) // 발급 시간
                 .signWith(rsaKeyProvider.getPrivateKey(), Jwts.SIG.PS256) // RSA 개인키로 서명 (PS256)
                 .compact();
-        });
+        }).subscribeOn(Schedulers.parallel());
 	}
 	
 	/**
@@ -89,7 +89,7 @@ public class TokenService {
                 .issuedAt(Date.from(now)) // 발급 시간
                 .signWith(rsaKeyProvider.getPrivateKey(), Jwts.SIG.PS256) // RSA 개인키로 서명 (PS256)
                 .compact();
-        });
+        }).subscribeOn(Schedulers.parallel());
 	}
 	
 	/**
