@@ -1,0 +1,143 @@
+/* 페이지 배경 */
+body {
+  margin: 0;
+  padding: 0;
+  background: #f5f6fa;
+  font-family: "맑은 고딕", sans-serif;
+  color: #333;
+}
+
+/* 카드 컨테이너 */
+.signup-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 60px auto;
+  padding: 2rem 2.5rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* 제목 */
+.signup-container h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
+  font-weight: 500;
+  text-align: center;
+}
+.signup-container hr {
+  border: none;
+  border-bottom: 2px solid #ddd;
+  margin-bottom: 2rem;
+}
+
+/* ─────────────────────────────────────────── */
+/* PC: 가로 배치 */
+/* ─────────────────────────────────────────── */
+.signup-container .form-fields {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.signup-container .form-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.signup-container .form-field label {
+  min-width: 6rem;
+  text-align: left;
+  font-size: 1rem;
+}
+.signup-container .form-field input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;  /* 높이 축소 */
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.25s;
+}
+.signup-container .form-field input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* 구분선 */
+.signup-container .divider {
+  width: 1px;
+  height: 2.5rem;
+  background: #ccc;
+}
+
+/* 패스워드 그룹 */
+.signup-container .password-group {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* 버튼 그룹 */
+.signup-container .button-group {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  gap: 1rem;
+}
+.signup-container .button-group button {
+  min-width: 120px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.25s, transform 0.1s;
+}
+#signupButton {
+  background-color: #007bff;
+  color: #fff;
+}
+#signupButton:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+#cancelButton {
+  background-color: #6c757d;
+  color: #fff;
+}
+#cancelButton:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────── */
+/* 모바일(폭 ≤ 768px): 세로 스택 */
+/* ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .signup-container .form-fields {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+  .signup-container .divider {
+    display: none;
+  }
+  .signup-container .password-group {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .signup-container .form-field {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .signup-container .form-field label {
+    margin-bottom: 0.5rem;
+  }
+  .signup-container .button-group {
+    flex-direction: column;
+  }
+  .signup-container .button-group button {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+}

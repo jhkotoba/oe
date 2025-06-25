@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입</title>
+  <link rel="stylesheet" type="text/css"
+        th:href="@{/{prefix}/static/signup/signup.css (prefix=${gatewayPrefix})}">
+</head>
+<body>
+  <div class="signup-container">
+    <h2>회원가입</h2>
+    <hr>
+
+    <form id="signupForm" onsubmit="return false;">
+      <div class="form-fields">
+        <!-- 아이디 필드 -->
+        <div class="form-field">
+          <label for="userId">아이디</label>
+          <input type="text" id="userId" required>
+        </div>
+
+        <!-- 구분선 (PC에만 보이고, 모바일에선 숨김) -->
+        <div class="divider"></div>
+
+        <!-- 패스워드 그룹 -->
+        <div class="password-group">
+          <div class="form-field">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" required>
+            <input type="password" id="confirmPassword" required>
+          </div>         
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="button" id="signupButton">확인</button>
+        <button type="button" id="cancelButton">취소</button>
+      </div>
+    </form>
+  </div>
+
+  <script type="module"
+          th:src="@{/{prefix}/static/signup/signup.js (prefix=${gatewayPrefix})}"></script>
+</body>
+</html>
