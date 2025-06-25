@@ -1,4 +1,4 @@
-/* 페이지 배경 */
+/* 페이지 전체 배경 */
 body {
   margin: 0;
   padding: 0;
@@ -7,7 +7,7 @@ body {
   color: #333;
 }
 
-/* 카드 컨테이너 */
+/* 중앙의 카드 컨테이너 */
 .signup-container {
   width: 90%;
   max-width: 1200px;
@@ -18,7 +18,7 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-/* 제목 */
+/* 제목 및 구분선 */
 .signup-container h2 {
   margin-bottom: 1.5rem;
   font-size: 1.6rem;
@@ -32,7 +32,7 @@ body {
 }
 
 /* ─────────────────────────────────────────── */
-/* PC: 가로 배치 */
+/* PC: 가로 레이아웃 */
 /* ─────────────────────────────────────────── */
 .signup-container .form-fields {
   display: flex;
@@ -45,19 +45,22 @@ body {
   align-items: center;
   gap: 0.5rem;
 }
+
 .signup-container .form-field label {
   min-width: 6rem;
   text-align: left;
   font-size: 1rem;
 }
+
 .signup-container .form-field input {
   flex: 1;
-  padding: 0.5rem 0.75rem;  /* 높이 축소 */
+  padding: 0.5rem 0.75rem;  /* 입력 높이 축소 */
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   transition: border-color 0.25s;
 }
+
 .signup-container .form-field input:focus {
   border-color: #007bff;
   outline: none;
@@ -77,14 +80,19 @@ body {
   gap: 1.5rem;
 }
 
-/* 버튼 그룹 */
+/* ─────────────────────────────────────────── */
+/* 버튼 그룹: PC 기본 너비 */
+/* ─────────────────────────────────────────── */
 .signup-container .button-group {
   display: flex;
   justify-content: center;
   margin-top: 2rem;
   gap: 1rem;
 }
+
 .signup-container .button-group button {
+  flex: none;         /* 내용에 맞춰 자동 너비 */
+  width: auto;
   min-width: 120px;
   padding: 0.75rem;
   font-size: 1rem;
@@ -93,6 +101,7 @@ body {
   cursor: pointer;
   transition: background 0.25s, transform 0.1s;
 }
+
 #signupButton {
   background-color: #007bff;
   color: #fff;
@@ -101,6 +110,7 @@ body {
   background-color: #0056b3;
   transform: translateY(-1px);
 }
+
 #cancelButton {
   background-color: #6c757d;
   color: #fff;
@@ -111,7 +121,7 @@ body {
 }
 
 /* ─────────────────────────────────────────── */
-/* 모바일(폭 ≤ 768px): 세로 스택 */
+/* 모바일 (폭 ≤ 768px): 세로 스택, 버튼 full-width */
 /* ─────────────────────────────────────────── */
 @media (max-width: 768px) {
   .signup-container .form-fields {
@@ -124,6 +134,7 @@ body {
   }
   .signup-container .password-group {
     flex-direction: column;
+    align-items: flex-start;
     gap: 1rem;
   }
   .signup-container .form-field {
