@@ -2,7 +2,7 @@ package jkt.oe.persistence.ur.user;
 
 import org.springframework.stereotype.Component;
 
-import jkt.oe.module.auth.login.model.data.UserData;
+import jkt.oe.module.auth.model.data.UserData;
 
 /**
  * Entity 객체를 도메인 모델 객체로 변환하는 역할
@@ -25,5 +25,21 @@ public class UserMapper {
         	.useYn(userEntity.getUseYn())
         	.salt(userEntity.getSalt())
         	.build();
+    }
+	
+	/**
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public UserEntity saveUser(UserData user) {
+        return UserEntity.builder()
+    		.userId(user.getUserId())
+    		.email(user.getEmail())
+    		.password(user.getPassword())
+    		.useYn(user.getUseYn())
+    		.insDttm(user.getInsDttm())
+    		.salt(user.getSalt())
+    		.build();
     }
 }

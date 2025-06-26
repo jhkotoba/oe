@@ -6,12 +6,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import lombok.Builder;
 import lombok.Getter;
 
 /**
  * UR_USER과 매칭되는 엔티티 클래스
  */
 @Getter
+@Builder
 @Table("UR_USER")
 public class UserEntity {
 	
@@ -21,6 +23,9 @@ public class UserEntity {
 	
 	@Column("USER_ID")
 	private String userId;
+	
+	@Column("EMAIL")
+	private String email;
 	
 	@Column("PASSWORD") 
 	private String password;

@@ -2,9 +2,9 @@ package jkt.oe.persistence.ur.user;
 
 import org.springframework.stereotype.Repository;
 
-import jkt.oe.module.auth.login.model.data.UserData;
-import jkt.oe.module.auth.login.repository.LoginRepository;
-import jkt.oe.module.auth.signup.repository.SignupRepository;
+import jkt.oe.module.auth.model.data.UserData;
+import jkt.oe.module.auth.repository.LoginRepository;
+import jkt.oe.module.auth.repository.SignupRepository;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -46,5 +46,15 @@ public class UserRepositoryAdapter implements LoginRepository, SignupRepository 
 	@Override
 	public Mono<Boolean> existsByUserId(String userId) {
 		return userEntityRepository.existsByUserId(userId);
+	}
+	
+	/**
+	 * 
+	 */
+	@Override
+	public Mono<Void> saveUser(UserData user) {
+		return userEntityRepository
+			    .save(userMapper.saveUser(user))
+			    .then();
 	}
 }

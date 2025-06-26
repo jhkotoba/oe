@@ -1,6 +1,9 @@
-const { userId, password, confirmPassword, signupButton, cancelButton, prefix } =
+const { userId, email, password, confirmPassword, signupButton, cancelButton, prefix } =
   document.getElementById('signupForm').elements;
 
+  console.log(prefix);
+  console.log(prefix.value);
+  
 // 취소 버튼 클릭 시 뒤로가기
 cancelButton.addEventListener('click', () => {
   history.back();
@@ -15,6 +18,8 @@ signupButton.addEventListener('click', async () => {
     signupButton.disabled = false;
     return;
   }
+  
+
 
   try {
     const res = await fetch(`/${prefix.value}/signup/process`, {
@@ -26,6 +31,7 @@ signupButton.addEventListener('click', async () => {
       },
       body: JSON.stringify({
         userId: userId.value,
+		email: email.value,
         password: password.value
       })
     });
