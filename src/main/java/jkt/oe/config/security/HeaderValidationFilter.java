@@ -1,5 +1,6 @@
 package jkt.oe.config.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -16,6 +17,9 @@ import reactor.core.publisher.Mono;
  */
 public class HeaderValidationFilter implements WebFilter {
 
+	@Value("${gateway.secret.key}")
+	private String gsKey;
+	
 	/**
 	 * 요청 필터 체인을 실행하기 전에 클라이언트 정보를 검증
 	 */
@@ -28,6 +32,9 @@ public class HeaderValidationFilter implements WebFilter {
         
         // User-Agent 헤더 추출
         String userAgent = request.getHeaders().getFirst(HeaderConst.USER_AGENT);
+        
+        // GS에서 전달한 키
+        String gsKey = request.getHeaders().getFirst("X-Gateway-Secret");
 
         // IP가 없는 경우 요청 차단 (400 Bad Request)
         if (ip == null || ip.isEmpty()) {
@@ -43,11 +50,10 @@ public class HeaderValidationFilter implements WebFilter {
             return exchange.getResponse().setComplete();
         }
         
-        // 로컬 IP만 접근 체크
-        if(!"127.0.0.1".equals(ip) && !"localhost".equals(ip) && !"0:0:0:0:0:0:0:1".equals(ip)) {
+        if (this.gsKey.equals(gsKey) == false) {
         	exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
         	exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-            return exchange.getResponse().setComplete();
+        	return exchange.getResponse().setComplete();
         }
         
         return chain.filter(exchange);
