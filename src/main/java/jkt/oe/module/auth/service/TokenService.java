@@ -8,7 +8,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jkt.oe.config.constant.CookieConst;
 import jkt.oe.config.constant.TokenConst;
 import jkt.oe.config.security.RsaKeyProvider;
@@ -22,7 +29,7 @@ import reactor.core.scheduler.Schedulers;
  */
 @Service
 @RequiredArgsConstructor
-public class TokenService {	    
+public class TokenService {    
 	
 	/**
 	 * AccessToken의 유효 시간(초)
@@ -101,10 +108,35 @@ public class TokenService {
         
 		return Mono.just(ResponseCookie.from(TokenConst.ACCESS_TOKEN, token)
 	          .httpOnly(true)
-	          .secure(false)
+	          .secure(true)
 	          .sameSite(CookieConst.LAX)
 	          .path("/")
 	          .maxAge(Duration.ofHours(1))
 	          .build());
-	} 
+	}
+	
+	public Mono<Claims> validateAndGetClaims(String token){
+		return Mono.fromCallable(() -> {
+			
+			Jws<Claims> jws = Jwts.parser()
+					.verifyWith(this.rsaKeyProvider.getPublicKey())
+					.build()
+					.parseSignedClaims(token);
+			
+			return jws.getPayload();
+			
+		}).doOnError(e -> e.printStackTrace()
+		).subscribeOn(Schedulers.parallel()).onErrorMap(exp -> {
+            if (exp instanceof ExpiredJwtException) {
+                return new JwtException("Token expired", exp);
+            } else if (exp instanceof UnsupportedJwtException ||
+                       exp instanceof MalformedJwtException ||
+                       exp instanceof SignatureException ||
+                       exp instanceof IllegalArgumentException) {
+                return new JwtException("Invalid JWT token", exp);
+            }
+            return exp;
+        });
+	}
 }
+	

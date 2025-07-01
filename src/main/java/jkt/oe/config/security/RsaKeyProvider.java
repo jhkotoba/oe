@@ -6,8 +6,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -26,11 +28,18 @@ public class RsaKeyProvider {
 	private final PrivateKey privateKey;
 	
 	/**
+	 * RSA 공개키
+	 */
+	private final PublicKey publicKey;
+	
+	/**
 	 * 생성자에서 private.pem 키 파일을 한 번 읽고, 파싱하여 privateKey 필드에 저장
 	 * @param privateKeyPath
 	 * @throws Exception
 	 */
-    public RsaKeyProvider(@Value("${custom.jwt.private-key-path}") Resource privateKeyPath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    public RsaKeyProvider(
+    		@Value("${custom.jwt.private-key-path}") Resource privateKeyPath,
+    		@Value("${custom.jwt.public-key-path}") Resource publicKeyPath) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
     	
     	// 파일 내용을 문자열로 읽기
         String key;
@@ -51,6 +60,18 @@ public class RsaKeyProvider {
         
         // RSA 알고리즘으로 개인키 생성
         this.privateKey = KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+        
+        String pubPem;
+        try (InputStream is = publicKeyPath.getInputStream()) {
+            pubPem = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        pubPem = pubPem
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s", "");
+        byte[] pubDecoded = Base64.getDecoder().decode(pubPem);
+        X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(pubDecoded);
+        this.publicKey = KeyFactory.getInstance("RSA").generatePublic(pubKeySpec);
     }
     
     /**
@@ -59,5 +80,12 @@ public class RsaKeyProvider {
      */
     public PrivateKey getPrivateKey() {
         return this.privateKey;
+    }
+    
+    /**
+     * RSA 공개 키 반환
+     */
+    public PublicKey getPublicKey() {
+        return this.publicKey;
     }
 }

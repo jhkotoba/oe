@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .pathMatchers("/static/**").permitAll()
                 .pathMatchers("/login/**").permitAll()  // 로그인
                 .pathMatchers("/signup/**").permitAll() // 회원가입
+                .pathMatchers("/token/**").permitAll() // 토큰체크
                 .anyExchange().authenticated() // 나머지는 인증 필요
             )
 

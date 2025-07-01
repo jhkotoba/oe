@@ -71,6 +71,22 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+/* signup 링크를 오른쪽 정렬, 진한 회색 고정 */
 .login-container .signup {
-	
+  display: block;              /* 블록 레벨로 만들어서 text-align 이 동작하도록 */
+  margin-top: 15px;            /* 위쪽 여백 (필요에 따라 조정) */
+  text-align: right;           /* 오른쪽 정렬 */
+  color: #555555;              /* 진한 회색 */
+  text-decoration: none;       /* 밑줄 제거(필요없으면 지워도 됩니다) */
+  cursor: pointer;
+}
+
+/* 모든 상태에서 색상 고정 */
+.login-container .signup:link,
+.login-container .signup:visited,
+.login-container .signup:hover,
+.login-container .signup:focus,
+.login-container .signup:active {
+  color: #555555;
+  text-decoration: none;       /* 밑줄 고정 해제(원하시면 hover 시 밑줄만 남기도록 조정 가능) */
 }
