@@ -36,7 +36,7 @@ loginButton.addEventListener('click', async () => {
 			window.location.href = returnUrl;	
 		}else{
 			// 없으면 기본 대시보드로 이동
-			window.location.href = '/main/dashboard';
+			window.location.href = '/dashboard';
 		}
 		
 	}catch(err){
