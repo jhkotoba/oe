@@ -38,6 +38,16 @@ public class LoginService {
                 .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
 	}
 	
+	public Mono<UserData> findUser(String userId){
+		return loginRepository.findByUserId(userId)
+                .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
+	}
+	public Mono<UserData> findUser(Long userNo){
+		return loginRepository.findUser(userNo)
+                .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
+	}
+	
+	
 	/**
 	 * 사용자가 입력한 비밀번호를 현재 저장된 해시와 비교하여 인증을 수행
 	 * 

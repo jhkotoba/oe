@@ -37,6 +37,12 @@ public class UserRepositoryAdapter implements LoginRepository, SignupRepository 
 			.map(userMapper::findUser);
 	}
 	
+	@Override
+	public Mono<UserData> findUser(Long userNo) {		
+		return userEntityRepository.findById(userNo)
+			.map(userMapper::findUser);
+	}
+	
 	/**
 	 * 주어진 사용자 ID(userId)를 가진 사용자가 데이터베이스에 존재하는지 확인
 	 * 
@@ -56,5 +62,5 @@ public class UserRepositoryAdapter implements LoginRepository, SignupRepository 
 		return userEntityRepository
 			    .save(userMapper.saveUser(user))
 			    .then();
-	}
+	}	
 }

@@ -15,4 +15,6 @@ public interface LoginRepository {
 	 * @return Mono<LoginResponse> - 비동기적으로 반환되는 사용자 정보
 	 */
 	public Mono<UserData> findByUserId(String userId);
+	
+	public Mono<UserData> findUser(Long userNo);
 }
