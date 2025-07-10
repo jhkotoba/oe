@@ -20,7 +20,10 @@ public class TokenException extends JwtException {
         MISSING_CLAIM("10207", "필수 클레임이 누락되었습니다."),
         INCORRECT_CLAIM("10208", "클레임 값이 예상과 일치하지 않습니다."),
         WEAK_KEY("10209", "토큰 서명에 사용된 키가 너무 약합니다."),
-        DECODING_ERROR("10210", "토큰 디코딩 중 오류가 발생했습니다.");
+        DECODING_ERROR("10210", "토큰 디코딩 중 오류가 발생했습니다."),
+		
+        REFRESH_RUNTIME_ERROR("10299", "리플레시 토큰 발생중 오류가 발생했습니다.");
+		
 		
 		private final String code;
 		private final String message;

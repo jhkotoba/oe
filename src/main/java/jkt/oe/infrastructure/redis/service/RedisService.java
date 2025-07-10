@@ -2,7 +2,6 @@ package jkt.oe.infrastructure.redis.service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +25,12 @@ public class RedisService {
 	
 	private final ReactiveStringRedisTemplate redisTemplate;
 	
+	
+	public Mono<String> getRefreshToken(String uuid) {		
+		return redisTemplate.opsForValue().get("uuid:" + uuid)
+			.flatMap(userNo -> redisTemplate.opsForValue().get("refresh:" + userNo));
+	}
+	
     /**
      * 디바이스 식별자(IP + UserAgent)를 SHA-256 해시로 계산하고
      * 해당 키에 저장된 리프레시 토큰을 Redis에서 조회합니다.
@@ -33,7 +38,8 @@ public class RedisService {
      * @param storeData 사용자 정보(회원번호, IP, UserAgent)
      * @return Mono<String> - 조회된 리프레시 토큰. 없으면 empty.
      */
-    public Mono<String> getRefreshToken(StoreRefreshTokenData storeData) {
+	@Deprecated
+    public Mono<String> getRefreshToken(StoreRefreshTokenData storeData) {	
         // IP + UserAgent 조합
         String input = storeData.getIp() + ":" + storeData.getUserAgent();
         
@@ -52,11 +58,25 @@ public class RedisService {
             })
             .subscribeOn(Schedulers.boundedElastic())
             .flatMap(deviceHash -> {
-                String redisKey = "refresh:" + storeData.getUserNo() + ":" + deviceHash;
+                String redisKey = "refresh:" + storeData.getUserNo() + ":" + deviceHash;            	
                 return redisTemplate.opsForValue().get(redisKey);
             });
     }
 	
+	
+	public Mono<Boolean> storeUUIDByUserNo(String uuid, Long userNo){
+		return redisTemplate.opsForValue()
+                .set("uuid:" + uuid, String.valueOf(userNo), Duration.ofSeconds(this.refreshExpiration));
+	}
+	
+	public Mono<Boolean> storeRefreshToken(Long userNo, String refreshToken){
+		return redisTemplate.opsForValue()
+                .set("refresh:" + userNo, refreshToken, Duration.ofSeconds(this.refreshExpiration));
+	}
+	
+	
+	
+	@Deprecated
 	public Mono<Void> storeRefreshToken(StoreRefreshTokenData storeData){
 		
 		String input = storeData.getIp() + ":" + storeData.getUserAgent();
@@ -85,34 +105,12 @@ public class RedisService {
                     .set(redisKey, storeData.getRefreshToken(), ttl);
         })
         .then();
+	}
+	
+	public Mono<Boolean> removeUUID(String uuid){
+		return redisTemplate.delete(uuid).map(deletedCount -> deletedCount > 0);
 		
 		
-//		String deviceHash = null;
-//		
-//		try {
-//			MessageDigest digest = MessageDigest.getInstance("SHA-256");
-//			byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-//			
-//			StringBuilder hexString = new StringBuilder();
-//            for (byte b : hashBytes) {
-//                String hex = Integer.toHexString(0xff & b);
-//                if (hex.length() == 1) {
-//                    hexString.append('0');
-//                }
-//                hexString.append(hex);
-//            }
-//            deviceHash = hexString.toString();
-//		} catch (NoSuchAlgorithmException e) {
-//			return Mono.error(e);
-//		}
-//		
-//		String redisKey = "refresh:" + storeData.getUserNo() + ":" + deviceHash;
-//		
-//		Duration ttl = Duration.ofSeconds(this.refreshExpiration);
-//		
-//		return redisTemplate.opsForValue()
-//		        .set(redisKey, storeData.getRefreshToken(), ttl)
-//		        .then();
 	}
 
 }

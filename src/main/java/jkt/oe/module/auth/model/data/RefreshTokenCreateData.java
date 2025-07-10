@@ -13,12 +13,17 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor(staticName = "of")
-@Deprecated
-public class AccessTokenCreateData {
+public class RefreshTokenCreateData {
 
 	/**
-     * 사용자 번호 (PK)
+     * UUID
      */
+	@NonNull
+	private String uuid;
+	
+	/**
+	 * 사용자 번호
+	 */
 	@NonNull
 	private Long userNo;
 	

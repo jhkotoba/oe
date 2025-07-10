@@ -13,6 +13,6 @@ public class LoginHandlerMapper {
 		return Mono.just(LoginResponse.builder()
 				.userNo(data.getUserNo())
 				.build()
-				);
+			);
 	}
 }
