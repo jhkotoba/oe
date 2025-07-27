@@ -17,7 +17,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jkt.oe.config.constant.CookieConst;
-import jkt.oe.config.constant.TokenConst;
+import jkt.oe.config.constant.OeConst;
 import jkt.oe.config.security.RsaKeyProvider;
 import jkt.oe.module.auth.exception.TokenException;
 import jkt.oe.module.auth.model.data.RefreshTokenCreateData;
@@ -67,7 +67,7 @@ public class TokenService {
         	// JWT 토큰 생성 (user 정보와 만료시간 포함)
         	return Jwts.builder()
         		.subject(data.getUuid())
-        		.claim("type", TokenConst.REFRESH_TOKEN)
+        		.claim("type", OeConst.REFRESH_TOKEN)
                 .claim("userNo", data.getUserNo())
                 .claim("userId", data.getUserId())
                 .expiration(expiration)	// 만료 시간
@@ -95,7 +95,7 @@ public class TokenService {
         	// JWT 토큰 생성 (user 정보와 만료시간 포함)
         	return Jwts.builder()
         		.subject(uuid)
-        		.claim("type", TokenConst.ACCESS_TOKEN)
+        		.claim("type", OeConst.ACCESS_TOKEN)
 //        		.subject(data.getUserNo().toString())
 //                .claim("userNo", data.getUserNo())
 //                .claim("userId", data.getUserId())
@@ -114,7 +114,7 @@ public class TokenService {
 	public Mono<ResponseCookie> generateAccessTokenCookie(String token) {
         
 		return Mono.just(
-				ResponseCookie.from(TokenConst.ACCESS_TOKEN, token)
+				ResponseCookie.from(OeConst.ACCESS_TOKEN, token)
 				.httpOnly(true)
 		        .secure(true)
 		        .sameSite(CookieConst.STRICT)
@@ -124,10 +124,10 @@ public class TokenService {
 	}
 	
 	// TODO 쿠키 생성 메소드는 서비스를 옮겨야 할것 같음
-	public Mono<ResponseCookie> generateUUIDCookie(String token) {
+	public Mono<ResponseCookie> generateUUIDCookie(String uuid) {
 		
 		return Mono.just(
-				ResponseCookie.from("uuid")
+				ResponseCookie.from(OeConst.UUID, uuid)
 				.httpOnly(true)
 				.secure(true)
 				.sameSite(CookieConst.STRICT)

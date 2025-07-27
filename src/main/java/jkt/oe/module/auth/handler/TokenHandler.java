@@ -10,14 +10,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
+import jkt.oe.config.constant.OeConst;
 import jkt.oe.config.constant.ResponseConst;
-import jkt.oe.config.constant.TokenConst;
-import jkt.oe.infrastructure.redis.data.StoreRefreshTokenData;
 import jkt.oe.infrastructure.redis.service.RedisService;
 import jkt.oe.module.auth.exception.TokenException;
-import jkt.oe.module.auth.model.data.AccessTokenCreateData;
 import jkt.oe.module.auth.service.LoginService;
 import jkt.oe.module.auth.service.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +27,7 @@ public class TokenHandler {
 	private final RedisService redisService;
 	private final LoginService loginService;
 	
-	public Mono<ServerResponse> check(ServerRequest request){
+	public Mono<ServerResponse> refresh(ServerRequest request){
 		
 		// Authorization 헤더에서 토큰 추출
 		String authHeader = request.headers().firstHeader(HttpHeaders.AUTHORIZATION);
@@ -60,10 +56,10 @@ public class TokenHandler {
 			.flatMap(claims -> {
 				String claimsType = String.valueOf(claims.get("type"));				
 				
-				if(TokenConst.ACCESS_TOKEN.equals(claimsType)) {
+				if(OeConst.ACCESS_TOKEN.equals(claimsType)) {
 					return ServerResponse.ok()
 			                .contentType(MediaType.APPLICATION_JSON).build();
-				}else if(TokenConst.REFRESH_TOKEN.equals(claimsType)) {
+				}else if(OeConst.REFRESH_TOKEN.equals(claimsType)) {
 					
 					// DB 사용자 확인/조회
 					return loginService.findUser(Long.parseLong(String.valueOf(claims.get("userNo"))))						
