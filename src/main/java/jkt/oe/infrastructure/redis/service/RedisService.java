@@ -3,11 +3,20 @@ package jkt.oe.infrastructure.redis.service;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.Base64;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jkt.oe.infrastructure.redis.data.RefreshData;
 import jkt.oe.infrastructure.redis.data.StoreRefreshTokenData;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -23,7 +32,25 @@ public class RedisService {
 	@Value("${custom.jwt.refresh-expiration}")
 	private Long refreshExpiration;
 	
+    /**
+     * HMAC 해시용 비밀키 버전(kid). 키 로테이션 시 교체.
+     * 예) h-2025-11
+     */
+    //@Value("${custom.jwt.refresh-hmac.kid}")
+    private String rtHmacKid = "h-2025-11"; // TODO test
+    
+    /**
+     * HMAC 해시용 비밀키(바이트). 환경변수/시크릿매니저에서 32~64바이트 난수 권장.
+     * 예) base64 인코딩된 값을 환경변수로 받고, 여기서 decode해서 byte[]로 주입하는 형태도 가능
+     */
+//    @Value("${refresh-hmac-secret-path}")
+//    private String refreshHmacPath;
+    
+    private String refreshHmacSecret = "ASJDWIHGISDFJIE2AFAEDAGSDFVNEIEISLKJDLS"; // refreshHmacPath 임시
+	
 	private final ReactiveStringRedisTemplate redisTemplate;
+	
+	private final ObjectMapper objectMapper;
 	
 	
 	public Mono<String> getRefreshToken(String uuid) {		
@@ -33,7 +60,7 @@ public class RedisService {
 	
     /**
      * 디바이스 식별자(IP + UserAgent)를 SHA-256 해시로 계산하고
-     * 해당 키에 저장된 리프레시 토큰을 Redis에서 조회합니다.
+     * 해당 키에 저장된 리프레시 토큰을 REDIS에서 조회합니다.
      *
      * @param storeData 사용자 정보(회원번호, IP, UserAgent)
      * @return Mono<String> - 조회된 리프레시 토큰. 없으면 empty.
@@ -63,15 +90,50 @@ public class RedisService {
             });
     }
 	
-	
+	@Deprecated
 	public Mono<Boolean> storeUUIDByUserNo(String uuid, Long userNo){
 		return redisTemplate.opsForValue()
                 .set("uuid:" + uuid, String.valueOf(userNo), Duration.ofSeconds(this.refreshExpiration));
 	}
 	
+//	@Deprecated
+//	public Mono<Boolean> storeRefreshToken(Long userNo, String refreshToken){
+//		return redisTemplate.opsForValue()
+//                .set("refresh:" + userNo, refreshToken, Duration.ofSeconds(this.refreshExpiration));
+//	}
+	
 	public Mono<Boolean> storeRefreshToken(Long userNo, String refreshToken){
-		return redisTemplate.opsForValue()
-                .set("refresh:" + userNo, refreshToken, Duration.ofSeconds(this.refreshExpiration));
+		
+		Instant now = Instant.now();
+        Instant exp = now.plusSeconds(this.refreshExpiration);
+        
+		
+        // RT 해시 계산
+        String rtHash = this.hmacSha256Base64Url(this.refreshHmacSecret.getBytes(), refreshToken);
+        
+        // Redis 키/값 구성
+        String key = "rt:" + rtHmacKid + ":" + rtHash;
+        
+        RefreshData entry = RefreshData.builder()
+        	.userNo(userNo)
+	        .issuedAt(now.toString())
+	        .expiresAt(exp.toString())
+	        .rotated(false)
+	        .kid(rtHmacKid)
+	        //.ua(ua) // TEST
+	        //.ip(ip) // TEST
+	        //.familyId(familyId != null ? familyId : UUID.randomUUID().toString()) // TEST 
+	        .build();
+        
+        String json = null;
+        try {
+            json = objectMapper.writeValueAsString(entry);
+        } catch (JsonProcessingException e) {
+            return Mono.error(e);
+        }
+		
+        Duration ttl = Duration.ofSeconds(this.refreshExpiration);
+        return redisTemplate.opsForValue().set(key, json, ttl);
 	}
 	
 	
@@ -112,5 +174,22 @@ public class RedisService {
 		
 		
 	}
+	
+	
+
+	
+	/**
+     * RT 원문(rtRaw)에 대해 base64url(HMAC_SHA256(secret, rtRaw)) 값을 반환
+     */
+    private String hmacSha256Base64Url(byte[] secret, String rtRaw) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(secret, "HmacSHA256"));
+            byte[] out = mac.doFinal(rtRaw.getBytes(StandardCharsets.UTF_8));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(out);
+        } catch (Exception e) {
+            throw new IllegalStateException("HMAC-SHA256 계산 실패", e);
+        }
+    }
 
 }

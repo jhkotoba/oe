@@ -17,7 +17,10 @@ public class TokenRouter {
 	protected RouterFunction<ServerResponse> tokenProcessRouter(TokenHandler tokenHandler){
 		
 		return RouterFunctions
-			.route(RequestPredicates.POST("/token/refresh")
-				.and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), tokenHandler::refresh);			
+			.route(RequestPredicates.POST("/token/validate")
+				.and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), tokenHandler::validate)
+			.andRoute(RequestPredicates.POST("/token/refresh")
+				.and(RequestPredicates.accept(MediaType.APPLICATION_JSON)), tokenHandler::refresh);
+					
 	}
 }

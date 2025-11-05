@@ -55,10 +55,7 @@ public class LoginHandler {
 	 * @param request - 클라이언트로부터의 로그인 요청을 나타내는 ServerRequest
 	 * @return Mono<ServerResponse> - 클라이언트에 전송할 비동기 HTTP 응답
 	 */
-	public Mono<ServerResponse> loginProcess(ServerRequest serverRequest){		
-		
-	    // 범용 고유 식별자 생성
-	    String uuid = UUID.randomUUID().toString();
+	public Mono<ServerResponse> loginProcess(ServerRequest serverRequest){
 	    
 	    return serverRequest.bodyToMono(LoginRequest.class)
 			.flatMap(request -> 
@@ -67,27 +64,28 @@ public class LoginHandler {
 		        // 사용자 검증
 		        .flatMap(user -> loginService.confirmUser(request, user))
 		    )
+			// 토큰 생성 및 응답값 생성
 		    .flatMap(user -> Mono.zip(
 					// Access 토큰 생성 - tuple1
-					tokenService.generateAccessToken(uuid),
-					// Response 객체 생성 - tuple2
+					tokenService.generateAccessToken(user.getUserNo(), UUID.randomUUID()),
+					// Refresh 토큰 생성 - tuple2
+					tokenService.generateRefreshToken(user.getUserNo(), UUID.randomUUID(), UUID.randomUUID()),
+					// Response 객체 생성 - tuple3
 					mapper.convertLoginProcessResponse(user),
-					// Refresh 토큰 생성 - tuple3
-					tokenService.generateRefreshToken(RefreshTokenCreateData.of(uuid, user.getUserNo(), user.getUserId())),
 					// 사용자 정보 - tuple4
 					Mono.just(user)
 				)
 			)
 		    // 리프레시 토큰 레디스 저장
-		    .flatMap(tuple -> redisService.storeRefreshToken(tuple.getT4().getUserNo(), tuple.getT3())
+		    .flatMap(tuple -> redisService.storeRefreshToken(tuple.getT4().getUserNo(), tuple.getT2())
 	    		// 응답 데이터 전달
 	    		.flatMap(bool -> Mono.zip(
-    					// 멕세스 토큰 쿠키 생성
+    					// 엑세스 토큰 쿠키 생성
 						tokenService.generateAccessTokenCookie(tuple.getT1()),
-						// UUID 쿠키 생성
-						tokenService.generateUUIDCookie(uuid),
+						// 리플레시 토큰 쿠키 생성
+						tokenService.generateRefreshTokenCookie(tuple.getT2()),
 						// 응답값 전송
-						Mono.just(tuple.getT2())
+						Mono.just(tuple.getT3())
 					)
 	    		)
 		    )
@@ -96,7 +94,7 @@ public class LoginHandler {
 		            .contentType(MediaType.APPLICATION_JSON)
 		            // 엑세스 토큰 쿠키
 		            .cookie(tuple.getT1())
-		            // UUID 쿠키
+		            // 리플레시 토큰 쿠키
 		            .cookie(tuple.getT2())
 		            // 로그인 사용자 정보
 		            .bodyValue(tuple.getT3())
