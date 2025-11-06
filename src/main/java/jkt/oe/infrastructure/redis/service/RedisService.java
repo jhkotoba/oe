@@ -1,5 +1,6 @@
 package jkt.oe.infrastructure.redis.service;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Duration;
@@ -11,6 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -51,6 +53,23 @@ public class RedisService {
 	private final ReactiveStringRedisTemplate redisTemplate;
 	
 	private final ObjectMapper objectMapper;
+	
+//	private final DefaultRedisScript<Long> MIGRATE_RT_SCRIPT =
+//	    new DefaultRedisScript<>(
+//	        """
+//	        -- KEYS[1]=oldKey, KEYS[2]=newKey
+//	        -- ARGV[1]=newJson, ARGV[2]=expectedOldJson(or ""), ARGV[3]=defaultTtlMs
+//	        local v = redis.call('GET', KEYS[1])
+//	        if (not v) then return 0 end
+//	        if (ARGV[2] ~= '' and v ~= ARGV[2]) then return -1 end
+//	        local ttl = redis.call('PTTL', KEYS[1])
+//	        if (ttl < 0) then ttl = tonumber(ARGV[3]) end
+//	        redis.call('SET', KEYS[2], ARGV[1], 'PX', ttl)
+//	        redis.call('DEL', KEYS[1])
+//	        return 1
+//	        """,
+//	        Long.class
+//	    );
 	
 	
 	public Mono<String> getRefreshToken(String uuid) {		
@@ -112,7 +131,43 @@ public class RedisService {
         String rtHash = this.hmacSha256Base64Url(this.refreshHmacSecret.getBytes(), refreshToken);
         
         // Redis 키/값 구성
-        String key = "rt:" + rtHmacKid + ":" + rtHash;
+        String tag = "{u:" + userNo + "}";
+        String key = "rt:" + tag + ":" + rtHmacKid + ":" + rtHash;
+        
+        RefreshData entry = RefreshData.builder()
+        	.userNo(userNo)
+	        .issuedAt(now.toString())
+	        .expiresAt(exp.toString())
+	        .rotated(false)
+	        .kid(rtHmacKid)
+	        //.ua(ua) // TEST
+	        //.ip(ip) // TEST
+	        //.familyId(familyId != null ? familyId : UUID.randomUUID().toString()) // TEST 
+	        .build();
+        
+        String json = null;
+        try {
+            json = objectMapper.writeValueAsString(entry);
+        } catch (JsonProcessingException e) {
+            return Mono.error(e);
+        }
+		
+        Duration ttl = Duration.ofSeconds(this.refreshExpiration);
+        return redisTemplate.opsForValue().set(key, json, ttl);
+	}
+	
+	public Mono<Boolean> rotateRefreshToken(Long userNo, String prevRefreshToken, String nextRefreshToken){
+		
+		Instant now = Instant.now();
+        Instant exp = now.plusSeconds(this.refreshExpiration);
+        
+		
+        // RT 해시 계산
+        String rtHash = this.hmacSha256Base64Url(this.refreshHmacSecret.getBytes(), nextRefreshToken);
+        
+        // Redis 키/값 구성
+        String tag = "{u:" + userNo + "}";
+        String key = "rt:" + tag + ":" + rtHmacKid + ":" + rtHash;
         
         RefreshData entry = RefreshData.builder()
         	.userNo(userNo)

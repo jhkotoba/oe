@@ -55,19 +55,49 @@ public class TokenHandler {
 		
 		String refreshToken = request.headers().firstHeader("refreshToken");
 		return tokenService.validate(refreshToken)
-			// Access 토큰 생성
-			.flatMap(claims -> tokenService.generateAccessToken(Long.parseLong(claims.getSubject()), UUID.randomUUID()))
-		    // Access 토큰 쿠키 객체 생성
-			.flatMap(tokenService::generateAccessTokenCookie)
-			// 응답처리
-			.flatMap(token -> {				
-				return ServerResponse.ok()
+			// 토큰 생성
+			.flatMap(claims -> {
+				Long userNo = Long.parseLong(claims.getSubject());
+				return Mono.zip(
+					// Access 토큰 생성 - tuple1
+					tokenService.generateAccessToken(userNo, UUID.randomUUID()),
+					// Refresh 토큰 생성 - tuple2
+					tokenService.generateRefreshToken(userNo, UUID.randomUUID(), UUID.fromString(claims.get("fid", String.class))),
+					// 사용자번호 - tuple3
+					Mono.just(userNo)
+				);
+			})
+			// 리프레시 토큰 회전
+			.flatMap(tuple -> redisService.rotateRefreshToken(tuple.getT3(), refreshToken, tuple.getT2())
+				// 응답 데이터 전달
+	    		.flatMap(bool -> Mono.zip(
+    					// 엑세스 토큰 쿠키 생성
+						tokenService.generateAccessTokenCookie(tuple.getT1()),
+						// 리플레시 토큰 쿠키 생성
+						tokenService.generateRefreshTokenCookie(tuple.getT2())
+					)
+	    		)
+	    	)
+			// HTTP 응답처리
+		    .flatMap(tuple -> ServerResponse.ok()
 		            .contentType(MediaType.APPLICATION_JSON)
 		            // 엑세스 토큰 쿠키
-		            .cookie(token)
-		            .build();
-			}
-			)
+		            .cookie(tuple.getT1())
+		            // 리플레시 토큰 쿠키
+		            .cookie(tuple.getT2())
+		            .build()
+		    )
+		    // 토큰 쿠키 객체 생성
+//			.flatMap(tuple -> tokenService::generateAccessTokenCookie)
+			// 응답처리
+//			.flatMap(token -> {				
+//				return ServerResponse.ok()
+//		            .contentType(MediaType.APPLICATION_JSON)
+//		            // 엑세스 토큰 쿠키
+//		            .cookie(token)
+//		            .build();
+//				}
+//			)
 			// 토큰 만료 케이스: 레디스에서 리프레시 토큰 조회 후 재발급 흐름으로 분기
 			.onErrorResume(TokenException.class, ex -> {				
 				return ServerResponse.status(HttpStatus.UNAUTHORIZED)
