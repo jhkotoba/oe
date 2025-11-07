@@ -11,6 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor(staticName = "of")
 public class LoginResponse {
 	
-	private Long userNo;
+	private Long userId;
 
 }

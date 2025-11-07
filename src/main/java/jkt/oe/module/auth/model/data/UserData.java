@@ -13,39 +13,20 @@ import lombok.Setter;
 @Setter
 @Builder
 public class UserData {
+		
+	private Long userId;
+		
+	private String loginId;
 	
-	/**
-	 * 사용자 번호
-	 */
-	private Long userNo;
-	
-	/**
-	 * 사용자 아이디
-	 */
-	private String userId;
-	
-	/**
-	 * 사용자 아이디
-	 */
 	private String email;
 	
-	/**
-	 * 비밀번호
-	 */
 	private String password;
 	
-	/**
-	 * 사용여부
-	 */
-	private String useYn;
-	
-	/**
-	 * 등록일시
-	 */
-	private LocalDateTime insDttm;
-	
-	/**
-	 * 솔트
-	 */
 	private String salt;
+	
+	private boolean isActive;
+	
+	private LocalDateTime createdAt;
+	
+	private LocalDateTime updatedAt;
 }

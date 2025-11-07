@@ -10,11 +10,11 @@ import reactor.core.publisher.Mono;
 public interface LoginRepository {
 	
 	/**
-	 * 사용자 ID에 해당하는 사용자 정보를 조회
-	 * @param userId - 클라이언트가 제공한 사용자 ID
+	 * 로그인 ID에 해당하는 사용자 정보를 조회
+	 * @param loginId - 클라이언트가 제공한 사용자 ID
 	 * @return Mono<LoginResponse> - 비동기적으로 반환되는 사용자 정보
 	 */
-	public Mono<UserData> findByUserId(String userId);
+	public Mono<UserData> findByLoginId(String loginId);
 	
 	public Mono<UserData> findUser(Long userNo);
 }

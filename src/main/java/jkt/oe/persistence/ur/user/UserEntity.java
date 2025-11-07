@@ -14,15 +14,15 @@ import lombok.Getter;
  */
 @Getter
 @Builder
-@Table("UR_USER")
+@Table("USER")
 public class UserEntity {
 	
 	@Id
-	@Column("USER_NO")
-	private Long userNo;
-	
 	@Column("USER_ID")
-	private String userId;
+	private Long userId;
+	
+	@Column("LOGIN_ID")
+	private String loginId;
 	
 	@Column("EMAIL")
 	private String email;
@@ -30,13 +30,16 @@ public class UserEntity {
 	@Column("PASSWORD") 
 	private String password;
 	
-	@Column("USE_YN")
-	private String useYn;
-	
-	@Column("INS_DTTM")
-	private LocalDateTime insDttm;
-	
 	@Column("SALT")
 	private String salt;
-
+	
+	@Column("IS_ACTIVE")
+	private boolean isActive;
+	
+	@Column("CREATED_AT")
+	private LocalDateTime createdAt;
+	
+	@Column("UPDATED_AT")
+	private LocalDateTime updatedAt;
+	
 }

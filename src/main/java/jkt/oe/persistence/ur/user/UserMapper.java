@@ -19,11 +19,13 @@ public class UserMapper {
 	public UserData findUser(UserEntity userEntity) {
 		
         return UserData.builder()
-        	.userNo(userEntity.getUserNo())
         	.userId(userEntity.getUserId())
+        	.loginId(userEntity.getLoginId())
         	.password(userEntity.getPassword())
-        	.useYn(userEntity.getUseYn())
         	.salt(userEntity.getSalt())
+        	.isActive(userEntity.isActive())
+        	.createdAt(userEntity.getCreatedAt())
+        	.updatedAt(userEntity.getUpdatedAt())
         	.build();
     }
 	
@@ -35,11 +37,12 @@ public class UserMapper {
 	public UserEntity saveUser(UserData user) {
         return UserEntity.builder()
     		.userId(user.getUserId())
-    		.email(user.getEmail())
-    		.password(user.getPassword())
-    		.useYn(user.getUseYn())
-    		.insDttm(user.getInsDttm())
-    		.salt(user.getSalt())
-    		.build();
+        	.loginId(user.getLoginId())
+        	.password(user.getPassword())
+        	.salt(user.getSalt())
+        	.isActive(user.isActive())
+        	.createdAt(user.getCreatedAt())
+        	.updatedAt(user.getUpdatedAt())
+        	.build();
     }
 }

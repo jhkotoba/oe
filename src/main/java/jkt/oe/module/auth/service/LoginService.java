@@ -34,16 +34,16 @@ public class LoginService {
 	 */
 	public Mono<UserData> findUser(LoginRequest request){
 		
-		return loginRepository.findByUserId(request.getUserId())
+		return loginRepository.findByLoginId(request.getLoginId())
                 .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
 	}
 	
-	public Mono<UserData> findUser(String userId){
-		return loginRepository.findByUserId(userId)
+	public Mono<UserData> findUser(String loginId){
+		return loginRepository.findByLoginId(loginId)
                 .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
 	}
-	public Mono<UserData> findUser(Long userNo){
-		return loginRepository.findUser(userNo)
+	public Mono<UserData> findUser(Long userId){
+		return loginRepository.findUser(userId)
                 .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
 	}
 	

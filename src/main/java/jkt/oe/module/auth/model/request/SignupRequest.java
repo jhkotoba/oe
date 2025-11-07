@@ -11,7 +11,7 @@ public class SignupRequest {
 	/**
      * 사용자 아이디
      */
-	private String userId;
+	private String loginId;
 	
 	/**
 	 * 이메일

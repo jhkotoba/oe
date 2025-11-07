@@ -15,16 +15,16 @@ public interface UserEntityRepository extends ReactiveCrudRepository<UserEntity,
 	/**
 	 * 사용자 ID에 해당하는 UserEntity를 조회
 	 * 
-	 * @param userId - 클라이언트가 제공한 사용자 ID
+	 * @param userId - 클라이언트가 제공한 로그인 ID
 	 * @return Mono<UserEntity> - 비동기적으로 반환되는 UserEntity 객체
 	 */
-	public Mono<UserEntity> findByUserId(String userId);
+	public Mono<UserEntity> findByLoginId(String loginId);
 	
 	/**
 	 * 주어진 사용자 ID(userId)를 가진 사용자가 데이터베이스에 존재하는지 확인
 	 * 
-	 * @param userId - 클라이언트가 제공한 사용자 ID
+	 * @param userId - 클라이언트가 제공한 로그인 ID
 	 * @return Mono<Boolean> 존재하면 true, 없으면 false 를 발행.
 	 */
-	public Mono<Boolean> existsByUserId(String userId);
+	public Mono<Boolean> existsByLoginId(String loginId);
 }

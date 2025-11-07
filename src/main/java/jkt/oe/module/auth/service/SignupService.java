@@ -29,23 +29,24 @@ public class SignupService {
 	
 	/**
 	 * 
-	 * @param userId
+	 * @param loginId
 	 * @return
 	 */
-	public Mono<Void> existsByUserId(String userId) {		
-		return signupRepository.existsByUserId(userId)
+	public Mono<Void> existsByLoginId(String loginId) {		
+		return signupRepository.existsByLoginId(loginId)
 			.flatMap(exists -> exists
-                ? Mono.error(new SignupException(SignupException.Reason.USER_ID_ALREADY_EXISTS))
+                ? Mono.error(new SignupException(SignupException.Reason.LOGIN_ID_ALREADY_EXISTS))
                 : Mono.empty()
             );
 	}
 	
 	/**
 	 * 
-	 * @param req
+	 * @param request
 	 * @return
 	 */
 	public Mono<Void> saveUser(SignupRequest request) {
+		
         return Mono.fromCallable(() -> {
             // 랜덤 salt 생성
             SecureRandom sr = new SecureRandom();
@@ -61,12 +62,13 @@ public class SignupService {
 
             // UserData 빌드 (salt, 해시된 password 세팅)
             return UserData.builder()
-                .userId(request.getUserId())
+                .loginId(request.getLoginId())
                 .email(request.getEmail())
                 .password(hashed)
                 .salt(salt)
-                .useYn("Y")
-                .insDttm(LocalDateTime.now())
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
         })
         // CPU-bound 작업이니 parallel 스케줄러 권장

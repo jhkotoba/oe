@@ -15,7 +15,7 @@ public class SignupException extends RuntimeException {
          * 전달받은 사용자 ID 정보가 있어서 회원가입을 진행하지 못하는 경우
          * 코드: 20001
          */
-		USER_ID_ALREADY_EXISTS("10101", "이미 존재하는 사용자 ID입니다.");
+		LOGIN_ID_ALREADY_EXISTS("10101", "이미 존재하는 로그인 ID입니다.");
 		
 		private final String code;
 		private final String message;

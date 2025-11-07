@@ -1,6 +1,5 @@
 package jkt.oe.infrastructure.redis.service;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Duration;
@@ -12,7 +11,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -74,7 +72,7 @@ public class RedisService {
 	
 	public Mono<String> getRefreshToken(String uuid) {		
 		return redisTemplate.opsForValue().get("uuid:" + uuid)
-			.flatMap(userNo -> redisTemplate.opsForValue().get("refresh:" + userNo));
+			.flatMap(userId -> redisTemplate.opsForValue().get("refresh:" + userId));
 	}
 	
     /**
@@ -121,7 +119,7 @@ public class RedisService {
 //                .set("refresh:" + userNo, refreshToken, Duration.ofSeconds(this.refreshExpiration));
 //	}
 	
-	public Mono<Boolean> storeRefreshToken(Long userNo, String refreshToken){
+	public Mono<Boolean> storeRefreshToken(Long userId, String refreshToken){
 		
 		Instant now = Instant.now();
         Instant exp = now.plusSeconds(this.refreshExpiration);
@@ -131,11 +129,11 @@ public class RedisService {
         String rtHash = this.hmacSha256Base64Url(this.refreshHmacSecret.getBytes(), refreshToken);
         
         // Redis 키/값 구성
-        String tag = "{u:" + userNo + "}";
+        String tag = "{u:" + userId + "}";
         String key = "rt:" + tag + ":" + rtHmacKid + ":" + rtHash;
         
         RefreshData entry = RefreshData.builder()
-        	.userNo(userNo)
+        	.userId(userId)
 	        .issuedAt(now.toString())
 	        .expiresAt(exp.toString())
 	        .rotated(false)
@@ -156,7 +154,7 @@ public class RedisService {
         return redisTemplate.opsForValue().set(key, json, ttl);
 	}
 	
-	public Mono<Boolean> rotateRefreshToken(Long userNo, String prevRefreshToken, String nextRefreshToken){
+	public Mono<Boolean> rotateRefreshToken(Long userId, String prevRefreshToken, String nextRefreshToken){
 		
 		Instant now = Instant.now();
         Instant exp = now.plusSeconds(this.refreshExpiration);
@@ -166,11 +164,11 @@ public class RedisService {
         String rtHash = this.hmacSha256Base64Url(this.refreshHmacSecret.getBytes(), nextRefreshToken);
         
         // Redis 키/값 구성
-        String tag = "{u:" + userNo + "}";
+        String tag = "{u:" + userId + "}";
         String key = "rt:" + tag + ":" + rtHmacKid + ":" + rtHash;
         
         RefreshData entry = RefreshData.builder()
-        	.userNo(userNo)
+        	.userId(userId)
 	        .issuedAt(now.toString())
 	        .expiresAt(exp.toString())
 	        .rotated(false)

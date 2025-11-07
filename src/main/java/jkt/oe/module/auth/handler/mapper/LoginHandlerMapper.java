@@ -11,7 +11,7 @@ public class LoginHandlerMapper {
 
 	public Mono<LoginResponse> convertLoginProcessResponse(UserData data) {
 		return Mono.just(LoginResponse.builder()
-				.userNo(data.getUserNo())
+				.userId(data.getUserId())
 				.build()
 			);
 	}

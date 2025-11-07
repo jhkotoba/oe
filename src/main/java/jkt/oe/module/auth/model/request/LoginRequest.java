@@ -11,7 +11,7 @@ public class LoginRequest {
 	/**
      * 사용자 아이디
      */
-	private String userId;
+	private String loginId;
 	
 	/**
      * 사용자 비밀번호
