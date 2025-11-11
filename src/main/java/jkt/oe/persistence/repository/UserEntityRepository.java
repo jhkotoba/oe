@@ -1,8 +1,9 @@
-package jkt.oe.persistence.ur.user;
+package jkt.oe.persistence.repository;
 
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
 
+import jkt.oe.persistence.entity.UserEntity;
 import reactor.core.publisher.Mono;
 
 /**

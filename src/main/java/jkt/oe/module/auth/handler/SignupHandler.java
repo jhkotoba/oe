@@ -33,7 +33,12 @@ public class SignupHandler {
 		      signupService.existsByLoginId(request.getLoginId())
 		        // existsByUserId 통과 후 saveUser() Mono를 직접 리턴
 		        .then(signupService.saveUser(request))
-		    )			
+		    )
+			.flatMap(user -> {
+				
+				
+				return Mono.empty();
+			})
 			// HTTP 응답처리
 			.flatMap(v -> ServerResponse.ok()
 		            .contentType(MediaType.APPLICATION_JSON)		            

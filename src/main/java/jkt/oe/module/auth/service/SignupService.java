@@ -45,7 +45,7 @@ public class SignupService {
 	 * @param request
 	 * @return
 	 */
-	public Mono<Void> saveUser(SignupRequest request) {
+	public Mono<UserData> saveUser(SignupRequest request) {
 		
         return Mono.fromCallable(() -> {
             // 랜덤 salt 생성

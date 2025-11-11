@@ -15,9 +15,9 @@ public interface SignupRepository {
 	public Mono<Boolean> existsByLoginId(String loginId);
 	
 	/**
-	 * 
-	 * @param user
-	 * @return
-	 */
-	public Mono<Void> saveUser(UserData user);
+     * 사용자 저장
+     * @param user 저장할 사용자 데이터
+     * @return 생성된 사용자 PK(USER_ID)
+     */
+	public Mono<UserData> saveUser(UserData user);
 }

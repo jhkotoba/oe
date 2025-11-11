@@ -80,6 +80,8 @@ public class TokenService {
 	    			.add("auth")
 	    			.and()
         		.claim("type", OeConst.REFRESH_TOKEN)
+        		.claim("role", "") // TODO 추후추가예정 - 역활
+        		.claim("scope", "") // TODO 추후추가예정 - 권한
         		.claim("fid", fid) 
                 .expiration(expiration)	// 만료 시간
                 .issuedAt(Date.from(now)) // 발급 시간
@@ -113,6 +115,7 @@ public class TokenService {
         			.add("auth")
         			.and()
         		.claim("type", OeConst.ACCESS_TOKEN)
+        		.claim("role", "") // TODO 추후추가예정 - 역활
         		.claim("scope", "") // TODO 추후추가예정 - 권한
 //        		.subject(data.getUserNo().toString())
 //                .claim("userNo", data.getUserNo())

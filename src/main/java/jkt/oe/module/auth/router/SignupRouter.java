@@ -20,8 +20,7 @@ public class SignupRouter {
 	}
 	
 	@Bean
-	protected RouterFunction<ServerResponse> signupProcessRouter(SignupHandler signupHandler){
-		
+	protected RouterFunction<ServerResponse> signupProcessRouter(SignupHandler signupHandler){		
 		return RouterFunctions
 			// 가입 프로세스
 			.route(RequestPredicates.POST("/signup/process")
