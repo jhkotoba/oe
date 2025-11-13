@@ -1,5 +1,5 @@
-// 폼 요소에서 name 속성(userId, password, loginButton, prefix)에 해당하는 컨트롤을 구조 분해할당으로 가져옴
-const { userId, password, loginButton, prefix } = document.getElementById('loginForm').elements;
+// 폼 요소에서 name 속성(memberId, password, loginButton, prefix)에 해당하는 컨트롤을 구조 분해할당으로 가져옴
+const { memberId, password, loginButton, prefix } = document.getElementById('loginForm').elements;
 
 // 로그인 버튼에 클릭 이벤트 리스너 등록
 loginButton.addEventListener('click', async () => {
@@ -17,7 +17,7 @@ loginButton.addEventListener('click', async () => {
 	             "Content-Type": "application/json"
 	        },
 	        body: JSON.stringify({
-	            "userId": userId.value,
+	            "memberId": memberId.value,
 	            "password": password.value
 	        })
 	    });

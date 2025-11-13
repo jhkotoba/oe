@@ -31,10 +31,10 @@ public class SignupHandler {
 		return serverRequest.bodyToMono(SignupRequest.class)
 			.flatMap(request ->
 		      signupService.existsByLoginId(request.getLoginId())
-		        // existsByUserId 통과 후 saveUser() Mono를 직접 리턴
-		        .then(signupService.saveUser(request))
+		        // existsByUserId 통과 후 saveMember() Mono를 직접 리턴
+		        .then(signupService.saveMember(request))
 		    )
-			.flatMap(user -> {
+			.flatMap(member -> {
 				
 				
 				return Mono.empty();

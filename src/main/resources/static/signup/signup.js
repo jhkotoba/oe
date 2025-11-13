@@ -1,4 +1,4 @@
-const { userId, email, password, confirmPassword, signupButton, cancelButton, prefix } =
+const { memberId, email, password, confirmPassword, signupButton, cancelButton, prefix } =
 	document.getElementById('signupForm').elements;
   
 // 취소 버튼 클릭 시 뒤로가기
@@ -25,7 +25,7 @@ signupButton.addEventListener('click', async () => {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				userId: userId.value,
+				memberId: memberId.value,
 				email: email.value,
 				password: password.value
 			})

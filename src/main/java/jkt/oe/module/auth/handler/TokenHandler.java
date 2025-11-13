@@ -57,14 +57,14 @@ public class TokenHandler {
 		return tokenService.validate(refreshToken)
 			// 토큰 생성
 			.flatMap(claims -> {
-				Long userNo = Long.parseLong(claims.getSubject());
+				Long memberNo = Long.parseLong(claims.getSubject());
 				return Mono.zip(
 					// Access 토큰 생성 - tuple1
-					tokenService.generateAccessToken(userNo, UUID.randomUUID()),
+					tokenService.generateAccessToken(memberNo, UUID.randomUUID()),
 					// Refresh 토큰 생성 - tuple2
-					tokenService.generateRefreshToken(userNo, UUID.randomUUID(), UUID.fromString(claims.get("fid", String.class))),
+					tokenService.generateRefreshToken(memberNo, UUID.randomUUID(), UUID.fromString(claims.get("fid", String.class))),
 					// 사용자번호 - tuple3
-					Mono.just(userNo)
+					Mono.just(memberNo)
 				);
 			})
 			// 리프레시 토큰 회전

@@ -55,12 +55,12 @@ public class TokenService {
 
 	/**
 	 * RefreshToken 생성 (rotated=true 전제: fid를 유지, jti는 매번 신규)
-	 * @param userNo 사용자 번호
+	 * @param memberId 사용자 번호
 	 * @param jti RT 고유 ID
 	 * @param fid RT family ID
 	 * @return Mono<String> RT
 	 */
-	public Mono<String> generateRefreshToken(Long userNo, UUID jti, UUID fid){
+	public Mono<String> generateRefreshToken(Long memberId, UUID jti, UUID fid){
 		
 		// 현재 시간
         Instant now = Instant.now();
@@ -73,7 +73,7 @@ public class TokenService {
         	// JWT 토큰 생성 (user 정보와 만료시간 포함)
         	return Jwts.builder()
         		.issuer("oe-auth-" + profilesActive)
-        		.subject(userNo.toString())
+        		.subject(memberId.toString())
         		.id(jti.toString())
         		.audience()
 	    			.add("gateway")
@@ -96,7 +96,7 @@ public class TokenService {
 	 * @return
 	 */
 	//public Mono<ResponseCookie> generateAccessToken(AccessTokenCreateData data) {        
-	public Mono<String> generateAccessToken(Long userNo, UUID jti) {        
+	public Mono<String> generateAccessToken(Long memberId, UUID jti) {        
 		// 현재 시간
         Instant now = Instant.now();
         // 토큰 만료 시간 계산
@@ -108,7 +108,7 @@ public class TokenService {
         	// JWT 토큰 생성 (user 정보와 만료시간 포함)
         	return Jwts.builder()
         		.issuer("oe-auth-" + profilesActive)
-        		.subject(userNo.toString())
+        		.subject(memberId.toString())
         		.id(jti.toString())
         		.audience()
         			.add("gateway")

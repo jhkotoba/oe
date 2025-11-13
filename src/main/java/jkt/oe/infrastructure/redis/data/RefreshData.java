@@ -13,7 +13,7 @@ import lombok.Setter;
 public class RefreshData {
 
 	@NonNull
-	private Long userId;
+	private Long memberId;
 	
 	@NonNull
 	private String issuedAt;   // ISO-8601 문자열

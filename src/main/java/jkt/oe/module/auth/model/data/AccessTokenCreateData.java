@@ -20,11 +20,11 @@ public class AccessTokenCreateData {
      * 사용자 번호 (PK)
      */
 	@NonNull
-	private Long userNo;
+	private Long memberNo;
 	
 	/**
      * 사용자 아이디
      */
 	@NonNull
-	private String userId;
+	private String memberId;
 }

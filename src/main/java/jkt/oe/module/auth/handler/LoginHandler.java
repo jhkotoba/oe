@@ -51,25 +51,25 @@ public class LoginHandler {
 		return serverRequest.bodyToMono(LoginRequest.class)
 				.flatMap(request -> 
 			        // 사용자 정보를 조회
-			        loginService.findUser(request)
+			        loginService.findMember(request)
 			        // 사용자 검증
-			        .flatMap(user -> loginService.confirmUser(request, user))
+			        .flatMap(member -> loginService.confirmMember(request, member))
 			    )
 				// 토큰 생성 및 응답값 생성
-			    .flatMap(user -> 
+			    .flatMap(member -> 
 			    	Mono.zip(
 						// Access 토큰 생성 - tuple1
-						tokenService.generateAccessToken(user.getUserId(), UUID.randomUUID()),
+						tokenService.generateAccessToken(member.getMemberId(), UUID.randomUUID()),
 						// Refresh 토큰 생성 - tuple2
-						tokenService.generateRefreshToken(user.getUserId(), UUID.randomUUID(), UUID.randomUUID()),
+						tokenService.generateRefreshToken(member.getMemberId(), UUID.randomUUID(), UUID.randomUUID()),
 						// Response 객체 생성 - tuple3
-						mapper.convertLoginProcessResponse(user),
+						mapper.convertLoginProcessResponse(member),
 						// 사용자 정보 - tuple4
-						Mono.just(user)
+						Mono.just(member)
 					)
 				)
 			    // 리프레시 토큰 레디스 저장
-			    .flatMap(tuple -> redisService.storeRefreshToken(tuple.getT4().getUserId(), tuple.getT2())
+			    .flatMap(tuple -> redisService.storeRefreshToken(tuple.getT4().getMemberId(), tuple.getT2())
 		    		// 응답 데이터 전달
 		    		.flatMap(bool -> 
 		    			Mono.zip(
@@ -113,24 +113,24 @@ public class LoginHandler {
 	    return serverRequest.bodyToMono(LoginRequest.class)
 			.flatMap(request -> 
 		        // 사용자 정보를 조회
-		        loginService.findUser(request)
+		        loginService.findMember(request)
 		        // 사용자 검증
-		        .flatMap(user -> loginService.confirmUser(request, user))
+		        .flatMap(member -> loginService.confirmMember(request, member))
 		    )
 			// 토큰 생성 및 응답값 생성
-		    .flatMap(user -> Mono.zip(
+		    .flatMap(member -> Mono.zip(
 					// Access 토큰 생성 - tuple1
-					tokenService.generateAccessToken(user.getUserId(), UUID.randomUUID()),
+					tokenService.generateAccessToken(member.getMemberId(), UUID.randomUUID()),
 					// Refresh 토큰 생성 - tuple2
-					tokenService.generateRefreshToken(user.getUserId(), UUID.randomUUID(), UUID.randomUUID()),
+					tokenService.generateRefreshToken(member.getMemberId(), UUID.randomUUID(), UUID.randomUUID()),
 					// Response 객체 생성 - tuple3
-					mapper.convertLoginProcessResponse(user),
+					mapper.convertLoginProcessResponse(member),
 					// 사용자 정보 - tuple4
-					Mono.just(user)
+					Mono.just(member)
 				)
 			)
 		    // 리프레시 토큰 레디스 저장
-		    .flatMap(tuple -> redisService.storeRefreshToken(tuple.getT4().getUserId(), tuple.getT2())
+		    .flatMap(tuple -> redisService.storeRefreshToken(tuple.getT4().getMemberId(), tuple.getT2())
 	    		// 응답 데이터 전달
 	    		.flatMap(bool -> Mono.zip(
     					// 엑세스 토큰 쿠키 생성

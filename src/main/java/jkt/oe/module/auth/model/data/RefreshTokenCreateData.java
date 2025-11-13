@@ -25,11 +25,11 @@ public class RefreshTokenCreateData {
 	 * 사용자 번호
 	 */
 	@NonNull
-	private Long userNo;
+	private Long memberNo;
 	
 	/**
      * 사용자 아이디
      */
 	@NonNull
-	private String userId;
+	private String memberId;
 }

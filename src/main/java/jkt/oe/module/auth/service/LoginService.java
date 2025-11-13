@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import jkt.oe.config.exception.SystemException;
 import jkt.oe.module.auth.exception.LoginException;
-import jkt.oe.module.auth.model.data.UserData;
+import jkt.oe.module.auth.model.data.MemberData;
 import jkt.oe.module.auth.model.request.LoginRequest;
 import jkt.oe.module.auth.repository.LoginRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,19 +32,19 @@ public class LoginService {
 	 * @param LoginRequest - 클라이언트가 요청 데이터
 	 * @return Mono<LoginResponse> - 비동기적으로 반환되는 사용자 정보
 	 */
-	public Mono<UserData> findUser(LoginRequest request){
+	public Mono<MemberData> findMember(LoginRequest request){
 		
 		return loginRepository.findByLoginId(request.getLoginId())
-                .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
+                .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.MEMBER_NOT_FOUND)));
 	}
 	
-	public Mono<UserData> findUser(String loginId){
+	public Mono<MemberData> findMember(String loginId){
 		return loginRepository.findByLoginId(loginId)
-                .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
+                .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.MEMBER_NOT_FOUND)));
 	}
-	public Mono<UserData> findUser(Long userId){
-		return loginRepository.findUser(userId)
-                .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.USER_NOT_FOUND)));
+	public Mono<MemberData> findMember(Long memberId){
+		return loginRepository.findMember(memberId)
+                .switchIfEmpty(Mono.error(new LoginException(LoginException.Reason.MEMBER_NOT_FOUND)));
 	}
 	
 	
@@ -55,24 +55,24 @@ public class LoginService {
 	 * @param user - DB에서 조회한 사용자 정보(저장된 해시, 솔트 등)
 	 * @return
 	 */
-	public Mono<UserData> confirmUser(LoginRequest request, UserData user) {
+	public Mono<MemberData> confirmMember(LoginRequest request, MemberData member) {
 		
 		return Mono.fromCallable(() -> {
 			
 			// SHA-512 해시 생성
 			MessageDigest md = MessageDigest.getInstance("SHA-512");
-	        md.update(user.getSalt().getBytes(StandardCharsets.UTF_8));
+	        md.update(member.getSalt().getBytes(StandardCharsets.UTF_8));
 	        md.update(request.getPassword().getBytes(StandardCharsets.UTF_8));
 	        String encoded = String.format("%0128x", new BigInteger(1, md.digest()));	        
 	        
 	        // 타이밍 공격 방지를 위한 상수 시간 비교
-	        byte[] actual = user.getPassword().getBytes(StandardCharsets.UTF_8);
+	        byte[] actual = member.getPassword().getBytes(StandardCharsets.UTF_8);
 	        byte[] expected = encoded.getBytes(StandardCharsets.UTF_8);
 	        if (!MessageDigest.isEqual(actual, expected)) {
 	            throw new LoginException(LoginException.Reason.INVALID_CREDENTIALS);
 	        }	        
 			
-	        return user;
+	        return member;
 		})
 		.subscribeOn(Schedulers.parallel())
 		.onErrorMap(NoSuchAlgorithmException.class, ex -> {

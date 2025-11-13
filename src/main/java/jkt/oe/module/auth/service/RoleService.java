@@ -16,10 +16,10 @@ public class RoleService {
 
     /**
      * 신규 가입자에게 기본 ROLE_USER 를 부여
-     * @param userId 생성된 사용자 PK
+     * @param memberId 생성된 사용자 PK
      * @return Mono<Void>
      */
-    public Mono<Void> insertSignupUserRole(Long userId) {
+    public Mono<Void> insertSignupMemberRole(Long userId) {
     	return Mono.empty();
 //        return roleRepository.insertUserRole(userId, "ROLE_USER");
     }

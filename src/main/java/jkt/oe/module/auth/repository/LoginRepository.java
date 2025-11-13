@@ -1,6 +1,6 @@
 package jkt.oe.module.auth.repository;
 
-import jkt.oe.module.auth.model.data.UserData;
+import jkt.oe.module.auth.model.data.MemberData;
 import reactor.core.publisher.Mono;
 
 /**
@@ -14,7 +14,7 @@ public interface LoginRepository {
 	 * @param loginId - 클라이언트가 제공한 사용자 ID
 	 * @return Mono<LoginResponse> - 비동기적으로 반환되는 사용자 정보
 	 */
-	public Mono<UserData> findByLoginId(String loginId);
+	public Mono<MemberData> findByLoginId(String loginId);
 	
-	public Mono<UserData> findUser(Long userNo);
+	public Mono<MemberData> findMember(Long memberId);
 }

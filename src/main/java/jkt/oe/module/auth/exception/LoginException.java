@@ -15,7 +15,7 @@ public class LoginException extends RuntimeException {
          * 사용자 정보가 존재하지 않을 때 발생
          * 코드: 10001
          */
-		USER_NOT_FOUND("10001", "존재하지 않은 사용자 입니다."),
+		MEMBER_NOT_FOUND("10001", "존재하지 않은 사용자 입니다."),
 		
 		/**
          * 비밀번호가 일치하지 않을 때 발생

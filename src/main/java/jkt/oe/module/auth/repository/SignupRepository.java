@@ -1,6 +1,6 @@
 package jkt.oe.module.auth.repository;
 
-import jkt.oe.module.auth.model.data.UserData;
+import jkt.oe.module.auth.model.data.MemberData;
 import reactor.core.publisher.Mono;
 
 
@@ -16,8 +16,8 @@ public interface SignupRepository {
 	
 	/**
      * 사용자 저장
-     * @param user 저장할 사용자 데이터
-     * @return 생성된 사용자 PK(USER_ID)
+     * @param member 저장할 사용자 데이터
+     * @return 생성된 사용자 PK(MEMBER_ID)
      */
-	public Mono<UserData> saveUser(UserData user);
+	public Mono<MemberData> saveMember(MemberData member);
 }

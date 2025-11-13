@@ -1,7 +1,6 @@
 package jkt.oe.infrastructure.redis.service;
 
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
@@ -17,10 +16,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jkt.oe.infrastructure.redis.data.RefreshData;
-import jkt.oe.infrastructure.redis.data.StoreRefreshTokenData;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Service
 @RequiredArgsConstructor
@@ -72,7 +69,7 @@ public class RedisService {
 	
 	public Mono<String> getRefreshToken(String uuid) {		
 		return redisTemplate.opsForValue().get("uuid:" + uuid)
-			.flatMap(userId -> redisTemplate.opsForValue().get("refresh:" + userId));
+			.flatMap(memberId -> redisTemplate.opsForValue().get("refresh:" + memberId));
 	}
 	
     /**
@@ -82,36 +79,36 @@ public class RedisService {
      * @param storeData 사용자 정보(회원번호, IP, UserAgent)
      * @return Mono<String> - 조회된 리프레시 토큰. 없으면 empty.
      */
-	@Deprecated
-    public Mono<String> getRefreshToken(StoreRefreshTokenData storeData) {	
-        // IP + UserAgent 조합
-        String input = storeData.getIp() + ":" + storeData.getUserAgent();
-        
-        return Mono.fromCallable(() -> {
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-                StringBuilder hexString = new StringBuilder();
-                for (byte b : hashBytes) {
-                    String hex = Integer.toHexString(0xff & b);
-                    if (hex.length() == 1) {
-                        hexString.append('0');
-                    }
-                    hexString.append(hex);
-                }
-                return hexString.toString();
-            })
-            .subscribeOn(Schedulers.boundedElastic())
-            .flatMap(deviceHash -> {
-                String redisKey = "refresh:" + storeData.getUserNo() + ":" + deviceHash;            	
-                return redisTemplate.opsForValue().get(redisKey);
-            });
-    }
+//	@Deprecated
+//    public Mono<String> getRefreshToken(StoreRefreshTokenData storeData) {	
+//        // IP + UserAgent 조합
+//        String input = storeData.getIp() + ":" + storeData.getUserAgent();
+//        
+//        return Mono.fromCallable(() -> {
+//                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+//                byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+//                StringBuilder hexString = new StringBuilder();
+//                for (byte b : hashBytes) {
+//                    String hex = Integer.toHexString(0xff & b);
+//                    if (hex.length() == 1) {
+//                        hexString.append('0');
+//                    }
+//                    hexString.append(hex);
+//                }
+//                return hexString.toString();
+//            })
+//            .subscribeOn(Schedulers.boundedElastic())
+//            .flatMap(deviceHash -> {
+//                String redisKey = "refresh:" + storeData.getUserNo() + ":" + deviceHash;            	
+//                return redisTemplate.opsForValue().get(redisKey);
+//            });
+//    }
 	
-	@Deprecated
-	public Mono<Boolean> storeUUIDByUserNo(String uuid, Long userNo){
-		return redisTemplate.opsForValue()
-                .set("uuid:" + uuid, String.valueOf(userNo), Duration.ofSeconds(this.refreshExpiration));
-	}
+//	@Deprecated
+//	public Mono<Boolean> storeUUIDByUserNo(String uuid, Long userNo){
+//		return redisTemplate.opsForValue()
+//                .set("uuid:" + uuid, String.valueOf(userNo), Duration.ofSeconds(this.refreshExpiration));
+//	}
 	
 //	@Deprecated
 //	public Mono<Boolean> storeRefreshToken(Long userNo, String refreshToken){
@@ -119,7 +116,7 @@ public class RedisService {
 //                .set("refresh:" + userNo, refreshToken, Duration.ofSeconds(this.refreshExpiration));
 //	}
 	
-	public Mono<Boolean> storeRefreshToken(Long userId, String refreshToken){
+	public Mono<Boolean> storeRefreshToken(Long memberId, String refreshToken){
 		
 		Instant now = Instant.now();
         Instant exp = now.plusSeconds(this.refreshExpiration);
@@ -129,11 +126,11 @@ public class RedisService {
         String rtHash = this.hmacSha256Base64Url(this.refreshHmacSecret.getBytes(), refreshToken);
         
         // Redis 키/값 구성
-        String tag = "{u:" + userId + "}";
+        String tag = "{u:" + memberId + "}";
         String key = "rt:" + tag + ":" + rtHmacKid + ":" + rtHash;
         
         RefreshData entry = RefreshData.builder()
-        	.userId(userId)
+        	.memberId(memberId)
 	        .issuedAt(now.toString())
 	        .expiresAt(exp.toString())
 	        .rotated(false)
@@ -154,7 +151,7 @@ public class RedisService {
         return redisTemplate.opsForValue().set(key, json, ttl);
 	}
 	
-	public Mono<Boolean> rotateRefreshToken(Long userId, String prevRefreshToken, String nextRefreshToken){
+	public Mono<Boolean> rotateRefreshToken(Long memberId, String prevRefreshToken, String nextRefreshToken){
 		
 		Instant now = Instant.now();
         Instant exp = now.plusSeconds(this.refreshExpiration);
@@ -164,11 +161,11 @@ public class RedisService {
         String rtHash = this.hmacSha256Base64Url(this.refreshHmacSecret.getBytes(), nextRefreshToken);
         
         // Redis 키/값 구성
-        String tag = "{u:" + userId + "}";
+        String tag = "{u:" + memberId + "}";
         String key = "rt:" + tag + ":" + rtHmacKid + ":" + rtHash;
         
         RefreshData entry = RefreshData.builder()
-        	.userId(userId)
+        	.memberId(memberId)
 	        .issuedAt(now.toString())
 	        .expiresAt(exp.toString())
 	        .rotated(false)
@@ -191,36 +188,36 @@ public class RedisService {
 	
 	
 	
-	@Deprecated
-	public Mono<Void> storeRefreshToken(StoreRefreshTokenData storeData){
-		
-		String input = storeData.getIp() + ":" + storeData.getUserAgent();
-		
-		return Mono.fromCallable(() -> {
-            // SHA-256 해싱
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hashBytes) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        })
-        // 해싱은 블로킹 작업이 될 수 있으므로 boundedElastic 스케줄러 사용
-        .subscribeOn(Schedulers.boundedElastic())
-        .flatMap(deviceHash -> {
-            String redisKey = "refresh:" + storeData.getUserNo() + ":" + deviceHash;
-            Duration ttl = Duration.ofSeconds(this.refreshExpiration);
-            // Redis에 저장
-            return redisTemplate.opsForValue()
-                    .set(redisKey, storeData.getRefreshToken(), ttl);
-        })
-        .then();
-	}
+//	@Deprecated
+//	public Mono<Void> storeRefreshToken(StoreRefreshTokenData storeData){
+//		
+//		String input = storeData.getIp() + ":" + storeData.getUserAgent();
+//		
+//		return Mono.fromCallable(() -> {
+//            // SHA-256 해싱
+//            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+//            byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+//            StringBuilder hexString = new StringBuilder();
+//            for (byte b : hashBytes) {
+//                String hex = Integer.toHexString(0xff & b);
+//                if (hex.length() == 1) {
+//                    hexString.append('0');
+//                }
+//                hexString.append(hex);
+//            }
+//            return hexString.toString();
+//        })
+//        // 해싱은 블로킹 작업이 될 수 있으므로 boundedElastic 스케줄러 사용
+//        .subscribeOn(Schedulers.boundedElastic())
+//        .flatMap(deviceHash -> {
+//            String redisKey = "refresh:" + storeData.getUserNo() + ":" + deviceHash;
+//            Duration ttl = Duration.ofSeconds(this.refreshExpiration);
+//            // Redis에 저장
+//            return redisTemplate.opsForValue()
+//                    .set(redisKey, storeData.getRefreshToken(), ttl);
+//        })
+//        .then();
+//	}
 	
 	public Mono<Boolean> removeUUID(String uuid){
 		return redisTemplate.delete(uuid).map(deletedCount -> deletedCount > 0);
