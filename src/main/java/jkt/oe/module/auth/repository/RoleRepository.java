@@ -1,6 +1,6 @@
-package jkt.oe.module.auth.repository;
+// package jkt.oe.module.auth.repository;
 
-public interface RoleRepository {
+// public interface RoleRepository {
 	
 	
-}
+// }
