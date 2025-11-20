@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
+@Deprecated
 public class SignupHandler {
 	
 	private final SignupService signupService;

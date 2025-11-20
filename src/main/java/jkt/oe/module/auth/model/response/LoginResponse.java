@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor(staticName = "of")
+@Deprecated
 public class LoginResponse {
 	
 	private Long memberId;

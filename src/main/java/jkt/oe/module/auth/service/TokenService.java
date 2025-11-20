@@ -31,6 +31,7 @@ import reactor.core.scheduler.Schedulers;
  */
 @Service
 @RequiredArgsConstructor
+@Deprecated
 public class TokenService {    
 	
 	@Value("${spring.profiles.active}")

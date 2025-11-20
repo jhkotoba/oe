@@ -20,6 +20,7 @@ import reactor.core.scheduler.Schedulers;
  */
 @Service
 @RequiredArgsConstructor
+@Deprecated
 public class LoginService {
 	
 	/**

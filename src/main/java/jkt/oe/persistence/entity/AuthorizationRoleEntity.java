@@ -18,6 +18,7 @@ import lombok.Getter;
 @Builder
 @Immutable
 @Table("AUTHORIZATION_ROLE")
+@Deprecated
 public class AuthorizationRoleEntity {
 	
 	@Id

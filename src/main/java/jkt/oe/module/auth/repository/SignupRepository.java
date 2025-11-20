@@ -3,7 +3,7 @@ package jkt.oe.module.auth.repository;
 import jkt.oe.module.auth.model.data.MemberData;
 import reactor.core.publisher.Mono;
 
-
+@Deprecated
 public interface SignupRepository {
 	
 	/**

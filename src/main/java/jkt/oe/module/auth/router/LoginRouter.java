@@ -14,6 +14,7 @@ import jkt.oe.module.auth.handler.LoginHandler;
  * 로그인 관련 Routing 처리 객체
  */
 @Configuration
+@Deprecated
 public class LoginRouter {
 
 	@Bean

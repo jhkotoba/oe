@@ -6,6 +6,7 @@ import lombok.Getter;
  * 로그인 요청 정보를 담는 DTO 클래스
  */
 @Getter
+@Deprecated
 public class LoginRequest {
 
 	/**

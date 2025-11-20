@@ -16,6 +16,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @Table("SERVICE")
+@Deprecated
 public class ServiceEntity {
 	
 	@Id

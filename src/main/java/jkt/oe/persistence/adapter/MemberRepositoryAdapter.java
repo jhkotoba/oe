@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
  */
 @Repository
 @AllArgsConstructor
+@Deprecated
 public class MemberRepositoryAdapter implements LoginRepository, SignupRepository {
 	
 	/**

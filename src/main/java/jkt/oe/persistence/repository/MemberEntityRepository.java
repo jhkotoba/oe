@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
  * 사용자 정보 조회 Repository 인터페이스
  */
 @Repository
+@Deprecated
 public interface MemberEntityRepository extends ReactiveCrudRepository<MemberEntity, Long> {
 	
 	/**

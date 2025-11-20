@@ -14,6 +14,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @Table("ROLE_SCOPE")
+@Deprecated
 public class RoleScopeEntity {
 	
 	@Id

@@ -12,6 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@Deprecated
 public class MemberData {
 		
 	private Long memberId;

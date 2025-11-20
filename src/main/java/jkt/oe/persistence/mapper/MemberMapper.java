@@ -9,6 +9,7 @@ import jkt.oe.persistence.entity.MemberEntity;
  * Entity 객체를 도메인 모델 객체로 변환하는 역할
  */
 @Component
+@Deprecated
 public class MemberMapper {
 	
 	/**

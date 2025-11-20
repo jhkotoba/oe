@@ -18,6 +18,7 @@ import lombok.Getter;
 @Builder
 @Immutable
 @Table("SCOPE")
+@Deprecated
 public class AuthorizationScopeEntity {
 	
 	@Id

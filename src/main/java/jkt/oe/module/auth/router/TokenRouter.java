@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import jkt.oe.module.auth.handler.TokenHandler;
 
 @Configuration
+@Deprecated
 public class TokenRouter {
 
 	@Bean

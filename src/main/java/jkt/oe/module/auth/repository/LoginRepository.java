@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
  * 로그인 기능과 관련된 데이터 조회를 위한 도메인 계층의 
  * 저장소 추상화 인터페이스
  */
+@Deprecated
 public interface LoginRepository {
 	
 	/**

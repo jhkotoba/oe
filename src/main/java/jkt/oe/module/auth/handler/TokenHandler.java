@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
+@Deprecated
 public class TokenHandler {
 	
 	private final TokenService tokenService;

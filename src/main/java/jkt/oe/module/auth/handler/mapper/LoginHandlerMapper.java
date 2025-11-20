@@ -7,6 +7,7 @@ import jkt.oe.module.auth.model.response.LoginResponse;
 import reactor.core.publisher.Mono;
 
 @Component
+@Deprecated
 public class LoginHandlerMapper {
 
 	public Mono<LoginResponse> convertLoginProcessResponse(MemberData data) {

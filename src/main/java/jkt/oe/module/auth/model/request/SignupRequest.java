@@ -6,6 +6,7 @@ import lombok.Getter;
  * 가입 요청 정보를 담는 DTO 클래스
  */
 @Getter
+@Deprecated
 public class SignupRequest {
 
 	/**

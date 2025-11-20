@@ -23,6 +23,7 @@ import reactor.core.scheduler.Schedulers;
  */
 @Service
 @RequiredArgsConstructor
+@Deprecated
 public class SignupService {
 	
 	private final SignupRepository signupRepository;

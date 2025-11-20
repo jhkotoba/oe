@@ -16,6 +16,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @Table("MEMBER_SERVICE_ROLE")
+@Deprecated
 public class MemberServiceRoleEntity {
 	
 	@Id
