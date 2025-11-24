@@ -3,6 +3,7 @@ package jkt.oe.module.auth.exception;
 /**
  * 로그인 과정에서 발생할 수 있는 사용자 인증 관련 예외를 처리하기 위한 커스텀 런타임 예외 클래스
  */
+@Deprecated
 public class LoginException extends RuntimeException {
 	
 	private static final long serialVersionUID = 1L;

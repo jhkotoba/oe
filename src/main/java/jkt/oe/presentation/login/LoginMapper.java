@@ -6,6 +6,6 @@ import jkt.oe.presentation.login.dto.LoginRequest;
 public class LoginMapper {
 
     public LoginCommand toCommand(LoginRequest r) {
-        return new LoginCommand();
+        return new LoginCommand(null, null);
     }
 }

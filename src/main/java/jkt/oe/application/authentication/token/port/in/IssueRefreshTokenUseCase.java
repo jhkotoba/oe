@@ -1,5 +1,8 @@
 package jkt.oe.application.authentication.token.port.in;
 
-public interface IssueRefreshTokenUseCase {
+import reactor.core.publisher.Mono;
 
+public interface IssueRefreshTokenUseCase {
+    
+    public Mono<String> issueRefreshToken();
 }

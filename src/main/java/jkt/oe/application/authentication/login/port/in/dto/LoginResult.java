@@ -1,5 +1,5 @@
 package jkt.oe.application.authentication.login.port.in.dto;
 
-public record LoginResult() {
+public class LoginResult {
 
 }
