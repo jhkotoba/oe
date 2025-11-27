@@ -6,6 +6,7 @@ import jkt.oe.application.authentication.login.port.in.dto.LoginResult;
 import jkt.oe.application.authentication.login.port.out.LoadMemberForAuthenticationPort;
 import jkt.oe.application.authentication.token.port.in.IssueAccessTokenUseCase;
 import jkt.oe.application.authentication.token.port.in.IssueRefreshTokenUseCase;
+import jkt.oe.application.authentication.token.port.out.StoreRefreshTokenMetadataPort;
 import jkt.oe.domain.authentication.AuthenticationMember;
 import jkt.oe.domain.authentication.policy.PasswordHashPolicy;
 import jkt.oe.domain.exception.LoginException;
@@ -32,6 +33,11 @@ public class LoginService implements LoginUseCase {
     private final LoadMemberForAuthenticationPort loadMemberForAuthenticationPort;
 
     /**
+     * 리프레시 토큰 메타데이터 저장 포트
+     */
+    private final StoreRefreshTokenMetadataPort storeRefreshTokenMetadataPort;
+
+    /**
      * 비밀번호 해시 정책
      */
     private final PasswordHashPolicy passwordHashPolicy;
@@ -42,15 +48,18 @@ public class LoginService implements LoginUseCase {
      * @param issueAccessTokenUseCase         - 액세스 토큰 발급 유스케이스
      * @param issueRefreshTokenUseCase        - 리프레시 토큰 발급 유스케이스
      * @param loadMemberForAuthenticationPort - 인증을 위한 회원 정보를 조회하는 포트
+     * @param storeRefreshTokenMetadataPort   - 리프레시 토큰 메타데이터 저장 포트
      * @param passwordHashPolicy              - 비밀번호 해시 정책
      */
     public LoginService(IssueAccessTokenUseCase issueAccessTokenUseCase,
             IssueRefreshTokenUseCase issueRefreshTokenUseCase,
             LoadMemberForAuthenticationPort loadMemberForAuthenticationPort,
+            StoreRefreshTokenMetadataPort storeRefreshTokenMetadataPort,
             PasswordHashPolicy passwordHashPolicy) {
         this.issueAccessTokenUseCase = issueAccessTokenUseCase;
         this.issueRefreshTokenUseCase = issueRefreshTokenUseCase;
         this.loadMemberForAuthenticationPort = loadMemberForAuthenticationPort;
+        this.storeRefreshTokenMetadataPort = storeRefreshTokenMetadataPort;
         this.passwordHashPolicy = passwordHashPolicy;
     }
 
@@ -73,19 +82,20 @@ public class LoginService implements LoginUseCase {
                         issueRefreshTokenUseCase.issueRefreshToken(),
                         // 사용자 정보 - tuple3
                         Mono.just(authenticationMember))
-
+                // 4. 리프레시 토큰 메타데이터 저장
                 ).flatMap(tuple -> {
-                    String accessToken = tuple.getT1();
-                    String refreshToken = tuple.getT2();
-                    // AuthenticationMember member = tuple.getT3();
-                    return Mono.just(new LoginResult());
+                    return storeRefreshTokenMetadataPort
+                            .storeRefreshTokenMetadata(tuple.getT3().getMemberId(), tuple.getT2())
+                            // 5. 로그인 결과 반환
+                            .thenReturn(new LoginResult(tuple.getT3().getMemberId(), tuple.getT3().getLoginId(), tuple.getT1(), tuple.getT2()));
                 });
     }
 
     /**
      * 비밀번호 검증
+     * 
      * @param command - 로그인 커맨드 객체
-     * @param member - 인증된 회원 정보
+     * @param member  - 인증된 회원 정보
      * @return Mono<AuthenticationMember> - 검증된 회원 정보
      */
     private Mono<AuthenticationMember> validatePassword(LoginCommand command, AuthenticationMember member) {
