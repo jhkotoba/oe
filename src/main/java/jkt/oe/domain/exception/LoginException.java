@@ -26,7 +26,9 @@ public class LoginException extends RuntimeException {
 
         LOCKED_ACCOUNT("10003", "잠긴 계정입니다."),
         WITHDRAWN_MEMBER("10004", "탈퇴한 회원입니다."),
-        DISABLED_ACCOUNT("10005", "비활성화된 계정입니다.");
+        DISABLED_ACCOUNT("10005", "비활성화된 계정입니다."),
+
+        ALREADY_EXISTING_ACCOUNT("10006", "이미 존재하는 계정입니다.");
         
 
         private final String code;

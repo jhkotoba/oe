@@ -10,6 +10,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor(staticName = "of")
+@Deprecated
 public class RefreshData {
 
 	@NonNull

@@ -1,5 +1,13 @@
 package jkt.oe.presentation.signup.dto;
 
-public class SignupReqeust {
+import lombok.Getter;
 
+@Getter
+public class SignupReqeust {
+    	
+	private String loginId;	
+	
+	private String email;	
+	
+	private String password;
 }
